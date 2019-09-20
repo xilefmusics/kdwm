@@ -1,18 +1,18 @@
-all: wwm
+all: kdwm
 
-wwm: wwm.o
-	cc -lxcb wwm.o -o wwm
+kdwm: kdwm.o
+	cc -lX11 kdwm.o -o kdwm
 
-wwm.o: wwm.c config.h
-	cc -c wwm.c -o wwm.o
+kdwm.o: kdwm.c config.h
+	cc -c kdwm.c -o kdwm.o
 
 clean:
 	rm *.o
-	rm wwm
+	rm kdwm
 
 install:
-	cp wwm /bin/wwm
+	cp kdwm /bin/kdwm
 
-run: wwm
+run: kdwm
 	clear
-	./wwm
+	./kdwm
