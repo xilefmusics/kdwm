@@ -4,7 +4,5 @@
 int main(int argc, char *argv[]) {
     wm_init();
     wm_start();
-    wm_tini();
-
     return 0;
 }

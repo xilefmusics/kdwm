@@ -3,8 +3,10 @@
 // stores to global configuration of the windowmanager
 typedef struct wm_global {
     Display *display;
-    Window *root_window;
+    Window root_window;
     int screen;
+    int screen_width;
+    int screen_height;
     bool running;
     FILE *log_fp;
 } wm_global_t;
@@ -23,10 +25,24 @@ void wm_err_detect_other(Display *display, XErrorEvent *e) {
 
 // event handler
 static wm_on_map_request(XMapRequestEvent *event) {
-
+    XMapWindow(wm_global.display, event->window);
+    XFlush(wm_global.display);
 }
 
 static wm_on_key_press(XKeyEvent *event) {
+    switch (event->keycode) {
+        case 24:
+            wm_stop();
+            break;
+        case 36:
+            system("st &");
+        default:
+            fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", event->keycode);
+            fflush(wm_global.log_fp);
+    }
+}
+
+static wm_on_key_release(XKeyEvent *event) {
     switch (event->keycode) {
         default:
             fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", event->keycode);
@@ -56,6 +72,19 @@ static void wm_run() {
                 fflush(wm_global.log_fp);
                 wm_on_key_press(&event.xkey);
                 break;
+            case KeyRelease:
+                fprintf(wm_global.log_fp, "Handle KeyRelease\n");
+                fflush(wm_global.log_fp);
+                wm_on_key_release(&event.xkey);
+                break;
+            case CreateNotify:
+                fprintf(wm_global.log_fp, "Got unhandled CreateNotify\n");
+                fflush(wm_global.log_fp);
+                break;
+            case MappingNotify:
+                fprintf(wm_global.log_fp, "Got unhandled MappingNotify\n");
+                fflush(wm_global.log_fp);
+                break;
             default:
                 fprintf(wm_global.log_fp, "Got not handled request from X-Server: %d\n", event.type);
                 fflush(wm_global.log_fp);
@@ -73,6 +102,10 @@ void wm_init() {
 
     // init screen
     wm_global.screen = DefaultScreen(wm_global.display);
+    wm_global.screen_width = DisplayWidth(wm_global.display, wm_global.screen);
+    wm_global.screen_height = DisplayHeight(wm_global.display, wm_global.screen);
+    fprintf(wm_global.log_fp, "dimension: %dx%d\n", wm_global.screen_width, wm_global.screen_height);
+    fflush(wm_global.log_fp);
 
     // init root window
     wm_global.root_window = RootWindow(wm_global.display, wm_global.screen);
@@ -84,7 +117,7 @@ void wm_init() {
     XSelectInput(wm_global.display, wm_global.root_window, SubstructureRedirectMask | SubstructureNotifyMask);
 
     // tell X-Server to get key Events
-    XGrabKey(wm_global.display, XKeysymToKeycode(wm_global.display, XStringToKeysym("F1")), MODKEY, RootWindow(wm_global.display, wm_global.screen), true, GrabModeAsync, GrabModeAsync);
+    XSelectInput(wm_global.display, wm_global.root_window, KeyPressMask | KeyReleaseMask);
 }
 
 void wm_start() {
@@ -94,6 +127,7 @@ void wm_start() {
 
 void wm_stop() {
     wm_global.running = false;
+    wm_tini();
 }
 
 void wm_tini() {
