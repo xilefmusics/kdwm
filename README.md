@@ -1,2 +1,2 @@
-# wwm
-A simple windowmanager for X
+# kdwm
+A simple keyboard driven windowmanager for X
