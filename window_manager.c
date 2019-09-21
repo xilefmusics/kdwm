@@ -4,6 +4,7 @@
 typedef struct wm_global {
     Display *display;
     bool running;
+    FILE *log_fp;
 } wm_global_t;
 
 static wm_global_t wm_global;
@@ -36,10 +37,13 @@ static void wm_run() {
     while (!XNextEvent(wm_global.display, &event) && wm_global.running) {
         switch(event.type) {
             case MapRequest:
+                fprintf(log_fp, "Handle MapRequest\n");
+                fflush(log_fp);
                 wm_on_map_request(&event.xmaprequest);
                 break;
             default:
-                printf("Got not handled request from X-Server: %d", event.type);
+                fprintf(log_fp, "Got not handled request from X-Server: %d\n", event.type);
+                fflush(log_fp);
         }
     }
 }
@@ -47,6 +51,7 @@ static void wm_run() {
 void wm_init() {
     // initialize global variables
     wm_global.running = false;
+    wm_global.log_fp = fopen("/home/xilef/Git/kdwm/log.txt", "w");
 
     // open display (connection to X-Server)
     wm_global.display = XOpenDisplay(NULL);
@@ -76,4 +81,7 @@ void wm_stop() {
 void wm_tini() {
     // close display (connections to X-Server)
     XCloseDisplay(wm_global.display);
+
+    // close logging
+    fclose(wm_global.log_fp);
 }
