@@ -26,6 +26,14 @@ static wm_on_map_request(XMapRequestEvent *event) {
 
 }
 
+static wm_on_key_press(XKeyEvent *event) {
+    switch (event->keycode) {
+        default:
+            fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", event->keycode);
+            fflush(wm_global.log_fp);
+    }
+}
+
 
 
 // user controll
@@ -42,6 +50,11 @@ static void wm_run() {
                 fprintf(wm_global.log_fp, "Handle MapRequest\n");
                 fflush(wm_global.log_fp);
                 wm_on_map_request(&event.xmaprequest);
+                break;
+            case KeyPress:
+                fprintf(wm_global.log_fp, "Handle KeyPress\n");
+                fflush(wm_global.log_fp);
+                wm_on_key_press(&event.xkey);
                 break;
             default:
                 fprintf(wm_global.log_fp, "Got not handled request from X-Server: %d\n", event.type);
@@ -69,6 +82,9 @@ void wm_init() {
 
     // tell X-Server to handle the root_window
     XSelectInput(wm_global.display, wm_global.root_window, SubstructureRedirectMask | SubstructureNotifyMask);
+
+    // tell X-Server to get key Events
+    XGrabKey(wm_global.display, XKeysymToKeycode(wm_global.display, XStringToKeysym("F1")), MODKEY, RootWindow(wm_global.display, wm_global.screen), true, GrabModeAsync, GrabModeAsync);
 }
 
 void wm_start() {
