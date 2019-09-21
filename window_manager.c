@@ -3,6 +3,8 @@
 // stores to global configuration of the windowmanager
 typedef struct wm_global {
     Display *display;
+    Window *root_window;
+    int screen;
     bool running;
     FILE *log_fp;
 } wm_global_t;
@@ -37,13 +39,13 @@ static void wm_run() {
     while (!XNextEvent(wm_global.display, &event) && wm_global.running) {
         switch(event.type) {
             case MapRequest:
-                fprintf(log_fp, "Handle MapRequest\n");
-                fflush(log_fp);
+                fprintf(wm_global.log_fp, "Handle MapRequest\n");
+                fflush(wm_global.log_fp);
                 wm_on_map_request(&event.xmaprequest);
                 break;
             default:
-                fprintf(log_fp, "Got not handled request from X-Server: %d\n", event.type);
-                fflush(log_fp);
+                fprintf(wm_global.log_fp, "Got not handled request from X-Server: %d\n", event.type);
+                fflush(wm_global.log_fp);
         }
     }
 }
@@ -57,16 +59,16 @@ void wm_init() {
     wm_global.display = XOpenDisplay(NULL);
 
     // init screen
-    int screen = DefaultScreen(wm_global.display);
-    int screen_width = DisplayWidth(wm_global.display, screen);
-    int screen_height = DisplayHeight(wm_global.display, screen);
-    Window root_window = RootWindow(wm_global.display, screen);
+    wm_global.screen = DefaultScreen(wm_global.display);
+
+    // init root window
+    wm_global.root_window = RootWindow(wm_global.display, wm_global.screen);
 
     // set error handler
     XSetErrorHandler(&wm_err_detect_other);
 
     // tell X-Server to handle the root_window
-    XSelectInput(wm_global.display, root_window, SubstructureRedirectMask | SubstructureNotifyMask);
+    XSelectInput(wm_global.display, wm_global.root_window, SubstructureRedirectMask | SubstructureNotifyMask);
 }
 
 void wm_start() {
