@@ -40,7 +40,7 @@ static wm_on_key_press(XKeyEvent *event) {
     fflush(wm_global.log_fp);
 
     for (int i = 0; i < LENGTH(wm_keybindings); ++i) {
-        if (wm_keybindings[i].keysym == keysym && CLEANMASK(wm_keybindings[i].mod) == CLEANMASK(event->state)) {
+        if (wm_keybindings[i].keysym == keysym && wm_keybindings[i].mod == event->state) {
             printf("Found Keybinding");
         }
     }
