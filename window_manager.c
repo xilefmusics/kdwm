@@ -16,6 +16,12 @@ void wm_err_detect_other(Display *display, XErrorEvent *e) {
 // event handler
 static wm_on_map_request(XMapRequestEvent *event) {
     XMapWindow(wm_global.display, event->window);
+    XWindowChanges changes;
+    changes.x = 0;
+    changes.y = 0;
+    changes.width = wm_global.screen_width;
+    changes.height = wm_global.screen_height;
+    XConfigureWindow(wm_global.display, event->window, 15, &changes);
     XFlush(wm_global.display);
 }
 
