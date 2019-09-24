@@ -32,12 +32,12 @@ static wm_on_map_request(XMapRequestEvent *event) {
 static wm_on_key_press(XKeyEvent *event) {
     int keysym = XKeycodeToKeysym(wm_global.display, event->keycode, 0);
     switch (keysym) {
-        case XK_q | MODKEY:
+        case (XK_q | MODKEY):
             fprintf(wm_global.log_fp, "Got handled keycode: %d\n", keysym);
             fflush(wm_global.log_fp);
             wm_stop();
             break;
-        case XK_Return | MODKEY:
+        case (XK_Return | MODKEY):
             fprintf(wm_global.log_fp, "Got handled keycode: %d\n", keysym);
             fflush(wm_global.log_fp);
             system("st &");
