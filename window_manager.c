@@ -109,10 +109,7 @@ void wm_init() {
     XSetErrorHandler(&wm_err_detect_other);
 
     // tell X-Server to handle the root_window
-    XSelectInput(wm_global.display, wm_global.root_window, SubstructureRedirectMask | SubstructureNotifyMask);
-
-    // tell X-Server to get key Events
-    XSelectInput(wm_global.display, wm_global.root_window, KeyPressMask);
+    XSelectInput(wm_global.display, wm_global.root_window, SubstructureRedirectMask | SubstructureNotifyMask | KeyPressMask);
 
     // grab all key events while MODKEY is pressed
     XGrabKey(wm_global.display, AnyKey, MODKEY, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
