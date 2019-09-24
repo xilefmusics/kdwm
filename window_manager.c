@@ -41,7 +41,7 @@ static wm_on_key_press(XKeyEvent *event) {
 
     for (int i = 0; i < LENGTH(wm_keybindings); ++i) {
         if (wm_keybindings[i].keysym == keysym && wm_keybindings[i].mod == event->state) {
-            printf("Found Keybinding");
+            wm_stop();
         }
     }
 }
