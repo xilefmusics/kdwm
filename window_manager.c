@@ -30,14 +30,15 @@ static wm_on_map_request(XMapRequestEvent *event) {
 }
 
 static wm_on_key_press(XKeyEvent *event) {
-    switch (XKeycodeToKeysym(wm_global.display, event->keycode, 0)) {
+    int keysym = XKeycodeToKeysym(wm_global.display, event->keycode, 0);
+    switch (keysym) {
         case XK_q | MODKEY:
             wm_stop();
             break;
-        case XK_RETURN | MODKEY:
+        case XK_Return | MODKEY:
             system("st &");
         default:
-            fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", event->keycode);
+            fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", keysym);
             fflush(wm_global.log_fp);
     }
 }
