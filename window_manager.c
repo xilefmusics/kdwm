@@ -19,7 +19,6 @@ typedef struct wm_global {
 static wm_global_t wm_global;
 
 
-
 // error handler
 void wm_err_detect_other(Display *display, XErrorEvent *e) {
     fprintf(stderr, "ERROR: an other windowmanager is already started\n");
@@ -41,7 +40,7 @@ static wm_on_key_press(XKeyEvent *event) {
 
     for (int i = 0; i < LENGTH(wm_keybindings); ++i) {
         if (wm_keybindings[i].keysym == keysym && wm_keybindings[i].mod == event->state) {
-            wm_stop();
+            wm_keybindings[i].func();
         }
     }
 }
@@ -148,4 +147,8 @@ void wm_tini() {
 
     // close logging
     fclose(wm_global.log_fp);
+}
+
+void spawn_term() {
+    system("st &");
 }
