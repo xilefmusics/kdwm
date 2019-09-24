@@ -1,7 +1,7 @@
 #ifndef CONFIG
 #define CONFIG
 
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask
 
 
 #endif

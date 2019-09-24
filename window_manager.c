@@ -95,7 +95,11 @@ static void wm_run() {
 void wm_init() {
     // initialize global variables
     wm_global.running = false;
-    wm_global.log_fp = fopen("/home/xilef/Git/kdwm/log.txt", "w");
+    char path_buffer[256];
+    char *homedir = getenv("HOME");
+    strcpy(path_buffer, homedir);
+    strcat(path_buffer, "/.kdwm/log.txt");
+    wm_global.log_fp = fopen(path_buffer, "w");
 
     // open display (connection to X-Server)
     wm_global.display = XOpenDisplay(NULL);
@@ -118,6 +122,9 @@ void wm_init() {
 
     // tell X-Server to get key Events
     XSelectInput(wm_global.display, wm_global.root_window, KeyPressMask | KeyReleaseMask);
+
+    // grab all key events while MODKEY is pressed
+    XGrabKey(wm_global.display, AnyKey, AnyModifier, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
 }
 
 void wm_start() {
