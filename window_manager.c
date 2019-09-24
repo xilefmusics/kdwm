@@ -38,7 +38,7 @@ static wm_on_key_press(XKeyEvent *event) {
         case XK_Return | MODKEY:
             system("st &");
         default:
-            fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", keysym);
+            fprintf(wm_global.log_fp, "Got not handled keycode (Press): %d\n", keysym);
             fflush(wm_global.log_fp);
     }
 }
@@ -46,7 +46,7 @@ static wm_on_key_press(XKeyEvent *event) {
 static wm_on_key_release(XKeyEvent *event) {
     switch (event->keycode) {
         default:
-            fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", event->keycode);
+            fprintf(wm_global.log_fp, "Got not handled keycode (Release): %d\n", event->keycode);
             fflush(wm_global.log_fp);
     }
 }
