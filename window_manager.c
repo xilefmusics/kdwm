@@ -30,11 +30,11 @@ static wm_on_map_request(XMapRequestEvent *event) {
 }
 
 static wm_on_key_press(XKeyEvent *event) {
-    switch (event->keycode) {
-        case 24:
+    switch (XKeycodeToKeysym(wm_global.display, event->keycode, 0)) {
+        case XK_q | MODKEY:
             wm_stop();
             break;
-        case 36:
+        case XK_RETURN | MODKEY:
             system("st &");
         default:
             fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", event->keycode);
@@ -124,7 +124,7 @@ void wm_init() {
     XSelectInput(wm_global.display, wm_global.root_window, KeyPressMask | KeyReleaseMask);
 
     // grab all key events while MODKEY is pressed
-    XGrabKey(wm_global.display, AnyKey, AnyModifier, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
+    XGrabKey(wm_global.display, AnyKey, MODKEY, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
 }
 
 void wm_start() {
