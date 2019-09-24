@@ -41,16 +41,6 @@ static wm_on_key_press(XKeyEvent *event) {
     }
 }
 
-static wm_on_key_release(XKeyEvent *event) {
-    int keysym = XKeycodeToKeysym(wm_global.display, event->keycode, 0);
-    switch (keysym) {
-        default:
-            fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", keysym);
-            fflush(wm_global.log_fp);
-    }
-}
-
-
 
 // user controll
 
@@ -71,11 +61,6 @@ static void wm_run() {
                 fprintf(wm_global.log_fp, "Handle KeyPress\n");
                 fflush(wm_global.log_fp);
                 wm_on_key_press(&event.xkey);
-                break;
-            case KeyRelease:
-                fprintf(wm_global.log_fp, "Handle KeyRelease\n");
-                fflush(wm_global.log_fp);
-                wm_on_key_release(&event.xkey);
                 break;
             case CreateNotify:
                 fprintf(wm_global.log_fp, "Got unhandled CreateNotify\n");
@@ -121,7 +106,7 @@ void wm_init() {
     XSelectInput(wm_global.display, wm_global.root_window, SubstructureRedirectMask | SubstructureNotifyMask);
 
     // tell X-Server to get key Events
-    XSelectInput(wm_global.display, wm_global.root_window, KeyPressMask | KeyReleaseMask);
+    XSelectInput(wm_global.display, wm_global.root_window, KeyPressMask);
 
     // grab all key events while MODKEY is pressed
     XGrabKey(wm_global.display, AnyKey, MODKEY, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
