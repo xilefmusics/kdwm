@@ -36,7 +36,7 @@ static wm_on_map_request(XMapRequestEvent *event) {
 
 static wm_on_key_press(XKeyEvent *event) {
     int keysym = XKeycodeToKeysym(wm_global.display, event->keycode, 0);
-    fprintf(wm_global.log_fp, "Key Pressed: %d\n", keysym);
+    fprintf(wm_global.log_fp, "Key Pressed: %d %d\n", keysym, event->state);
     fflush(wm_global.log_fp);
 
     for (int i = 0; i < LENGTH(wm_keybindings); ++i) {
