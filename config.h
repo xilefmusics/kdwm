@@ -4,21 +4,13 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
-void wm_stop();
-void spawn_term();
-
-
-typedef struct wm_key {
-    int mod;
-    int keysym;
-    void (*func)();
-} wm_keybinding_t;
+#include "window_manager.h"
 
 #define MODKEY Mod4Mask
 
 static wm_keybinding_t wm_keybindings[] = {
-    {MODKEY, XK_q, wm_stop},
-    {MODKEY, XK_Return, spawn_term},
+    {MODKEY, XK_q, wm_stop, NONE, NULL},
+    {MODKEY, XK_Return, system, STRING, "st &"},
 };
 
 #endif

@@ -1,21 +1,7 @@
-#include "window_manager.h"
+#include "config.h"
 
-// makros
-#define numlockmask 0
-#define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
-#define LENGTH(X)               (sizeof X / sizeof X[0])
 
 // stores to global configuration of the windowmanager
-typedef struct wm_global {
-    Display *display;
-    Window root_window;
-    int screen;
-    int screen_width;
-    int screen_height;
-    bool running;
-    FILE *log_fp;
-} wm_global_t;
-
 static wm_global_t wm_global;
 
 
@@ -40,7 +26,17 @@ static wm_on_key_press(XKeyEvent *event) {
 
     for (int i = 0; i < LENGTH(wm_keybindings); ++i) {
         if (wm_keybindings[i].keysym == keysym && wm_keybindings[i].mod == event->state) {
-            wm_keybindings[i].func();
+            switch (wm_keybindings[i].arg_type) {
+                case NONE:
+                    wm_keybindings[i].func();
+                    break;
+                case STRING:
+                    wm_keybindings[i].func(wm_keybindings[i].arg);
+                    break;
+                case INTEGER:
+                    wm_keybindings[i].func(atoi(wm_keybindings[i].arg));
+                    break;
+            }
         }
     }
 }
@@ -147,8 +143,4 @@ void wm_tini() {
 
     // close logging
     fclose(wm_global.log_fp);
-}
-
-void spawn_term() {
-    system("st &");
 }
