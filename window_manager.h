@@ -5,11 +5,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #include <X11/Xlib.h>
-#include <X11/keysym.h>
 
 #include "config.h"
+
 
 // basic functions
 void wm_init();

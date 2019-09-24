@@ -1,5 +1,10 @@
 #include "window_manager.h"
 
+// makros
+#define numlockmask 0
+#define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
+#define LENGTH(X)               (sizeof X / sizeof X[0])
+
 // stores to global configuration of the windowmanager
 typedef struct wm_global {
     Display *display;
@@ -31,23 +36,14 @@ static wm_on_map_request(XMapRequestEvent *event) {
 
 static wm_on_key_press(XKeyEvent *event) {
     int keysym = XKeycodeToKeysym(wm_global.display, event->keycode, 0);
-    switch (keysym) {
-        case (XK_q | MODKEY):
-            fprintf(wm_global.log_fp, "Got handled keycode: %d\n", keysym);
-            fflush(wm_global.log_fp);
-            wm_stop();
-            break;
-        case (XK_Return | MODKEY):
-            fprintf(wm_global.log_fp, "Got handled keycode: %d\n", keysym);
-            fflush(wm_global.log_fp);
-            system("st &");
-            break;
-        default:
-            fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", keysym);
-            fflush(wm_global.log_fp);
-            return;
-    }
+    fprintf(wm_global.log_fp, "Key Pressed: %d\n", keysym);
+    fflush(wm_global.log_fp);
 
+    for (int i = 0; i < LENGTH(wm_keybindings); ++i) {
+        if (wm_keybindings[i].keysym == keysym && CLEANMASK(wm_keybindings[i].mod) == CLEANMASK(event->state)) {
+            printf("Found Keybinding");
+        }
+    }
 }
 
 static wm_on_key_release(XKeyEvent *event) {
