@@ -37,16 +37,21 @@ static wm_on_key_press(XKeyEvent *event) {
             break;
         case XK_Return | MODKEY:
             system("st &");
+            break;
         default:
-            fprintf(wm_global.log_fp, "Got not handled keycode (Press): %d\n", keysym);
+            fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", keysym);
             fflush(wm_global.log_fp);
+            return;
     }
+    fprintf(wm_global.log_fp, "Got handled keycode: %d\n", keysym);
+    fflush(wm_global.log_fp);
+
 }
 
 static wm_on_key_release(XKeyEvent *event) {
     switch (event->keycode) {
         default:
-            fprintf(wm_global.log_fp, "Got not handled keycode (Release): %d\n", event->keycode);
+            fprintf(wm_global.log_fp, "Got not handled keycode: %d\n", event->keycode);
             fflush(wm_global.log_fp);
     }
 }
@@ -101,6 +106,9 @@ void wm_init() {
     strcpy(path_buffer, homedir);
     strcat(path_buffer, "/.kdwm/log.txt");
     wm_global.log_fp = fopen(path_buffer, "w");
+    printf("%d\n", MODKEY ^ XK_Return);
+    printf("%d\n", MODKEY | XK_Return);
+    printf("%d\n", MODKEY & XK_Return);
 
     // open display (connection to X-Server)
     wm_global.display = XOpenDisplay(NULL);
