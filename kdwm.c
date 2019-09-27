@@ -37,6 +37,25 @@ void wm_on_map_request(XMapRequestEvent *event) {
     wm_global.client_list.active_client = wm_global.client_list.head_client;
 }
 
+void wm_on_destroy_notify(XDestroyWindowEvent *event) {
+    // search for client
+    wm_client_t *client = wm_global.client_list.head_client;
+    while (client->window != NULL && client->window != event->window) {
+        client = client->next;
+    }
+    // return if no client found
+    if (client->window == NULL) {
+        return;
+    }
+    // delete client and change focus if necessary
+    wm_client_delete(client);
+    if (client == wm_global.client_list.active_client) {
+        if (!wm_focus_next()) {
+            wm_focus_prev();
+        }
+    }
+}
+
 void wm_on_key_press(XKeyEvent *event) {
     int keysym = XKeycodeToKeysym(wm_global.display, event->keycode, 0);
     fprintf(wm_global.log_fp, "Key Pressed: %d %d\n", keysym, event->state);
@@ -61,13 +80,13 @@ void wm_on_key_press(XKeyEvent *event) {
 
 
 // user controll
-void wm_focus_next() {
+bool wm_focus_next() {
     fprintf(wm_global.log_fp, "wm_focus_next");
     fflush(wm_global.log_fp);
 
     // if no next client return
     if (wm_global.client_list.active_client->next->window == NULL) {
-        return;
+        return false;
     }
     // unmap current window
     if (wm_global.client_list.active_client) {
@@ -77,15 +96,17 @@ void wm_focus_next() {
     wm_global.client_list.active_client = wm_global.client_list.active_client->next;
     // map new current window
     XMapWindow(wm_global.display, wm_global.client_list.active_client->window);
+
+    return true;
 }
 
-void wm_focus_prev() {
+bool wm_focus_prev() {
     fprintf(wm_global.log_fp, "wm_focus_prev");
     fflush(wm_global.log_fp);
 
     // if no next client return
     if (wm_global.client_list.active_client->prev == NULL) {
-        return;
+        return false;;
     }
     // unmap current window
     if (wm_global.client_list.active_client) {
@@ -95,9 +116,15 @@ void wm_focus_prev() {
     wm_global.client_list.active_client = wm_global.client_list.active_client->prev;
     // map new current window
     XMapWindow(wm_global.display, wm_global.client_list.active_client->window);
+
+    return true;
 }
 
 void wm_focus_head() {
+
+}
+
+void wm_kill_active_client() {
 
 }
 
@@ -154,6 +181,17 @@ void wm_client_rehead(wm_client_t *client) {
     wm_global.client_list.head_client = client;
 }
 
+wm_client_t *wm_client_get_next(wm_client_t *client) {
+    if (client->next->window == NULL) {
+        return NULL;
+    }
+    return client->next;
+}
+
+wm_client_t *wm_client_get_prev(wm_client_t *client) {
+    return client->prev;
+}
+
 
 // basic functions
 void wm_run() {
@@ -178,6 +216,11 @@ void wm_run() {
             case MappingNotify:
                 fprintf(wm_global.log_fp, "Got unhandled MappingNotify\n");
                 fflush(wm_global.log_fp);
+                break;
+            case DestroyNotify:
+                fprintf(wm_global.log_fp, "Handle DestroyNotify\n");
+                fflush(wm_global.log_fp);
+                wm_on_destroy_notify(&event.xdestroywindow);
                 break;
             default:
                 fprintf(wm_global.log_fp, "Got not handled request from X-Server: %d\n", event.type);
