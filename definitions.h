@@ -49,6 +49,9 @@ typedef struct wm_keybinding {
 
 
 // user controll of wm
+void wm_focus_prev();
+void wm_focus_next();
+void wm_focus_head();
 
 // basic functions
 void wm_init();

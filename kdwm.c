@@ -61,6 +61,38 @@ void wm_on_key_press(XKeyEvent *event) {
 
 
 // user controll
+void wm_focus_next() {
+    // if no next client return
+    if (!wm_global.client_list.active_client->next->window) {
+        return;
+    }
+    // unmap current window
+    if (wm_global.client_list.active_client) {
+        XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
+    }
+    // change current windwo
+    wm_global.client_list.active_client = wm_global.client_list.active_client->next;
+    // map new current window
+    XMapWindow(wm_global.display, wm_global.client_list.active_client->window);
+}
+
+void wm_focus_prev() {
+    if (!wm_global.client_list.active_client->prev) {
+        return;
+    }
+    // unmap current window
+    if (wm_global.client_list.active_client) {
+        XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
+    }
+    // change current windwo
+    wm_global.client_list.active_client = wm_global.client_list.active_client->prev;
+    // map new current window
+    XMapWindow(wm_global.display, wm_global.client_list.active_client->window);
+}
+
+void wm_focus_head() {
+
+}
 
 
 
