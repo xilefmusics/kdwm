@@ -62,8 +62,11 @@ void wm_on_key_press(XKeyEvent *event) {
 
 // user controll
 void wm_focus_next() {
+    fprintf(wm_global.log_fp, "wm_focus_next");
+    fflush(wm_global.log_fp);
+
     // if no next client return
-    if (!wm_global.client_list.active_client->next->window) {
+    if (wm_global.client_list.active_client->next->window == NULL) {
         return;
     }
     // unmap current window
@@ -77,7 +80,11 @@ void wm_focus_next() {
 }
 
 void wm_focus_prev() {
-    if (!wm_global.client_list.active_client->prev) {
+    fprintf(wm_global.log_fp, "wm_focus_prev");
+    fflush(wm_global.log_fp);
+
+    // if no next client return
+    if (wm_global.client_list.active_client->prev == NULL) {
         return;
     }
     // unmap current window
