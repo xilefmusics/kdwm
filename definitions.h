@@ -1,6 +1,3 @@
-#ifndef WINDOW_MANAGER
-#define WINDOW_MANAGER
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +5,7 @@
 #include <stddef.h>
 
 #include <X11/Xlib.h>
+#include <X11/keysym.h>
 
 // makros
 #define numlockmask 0
@@ -41,5 +39,3 @@ void wm_stop();
 void wm_tini();
 
 // user controll of wm
-
-#endif
