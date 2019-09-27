@@ -14,8 +14,11 @@ void wm_err_detect_other(Display *display, XErrorEvent *e) {
 
 
 // event handler
-static wm_on_map_request(XMapRequestEvent *event) {
-    XMapWindow(wm_global.display, event->window);
+void wm_on_map_request(XMapRequestEvent *event) {
+    // unmap old window
+    XUnmapWindow(wm_global.display, wm_global.client_list.active_client);
+
+    // make new window fullscreen
     XWindowChanges changes;
     changes.x = 0;
     changes.y = 0;
@@ -23,9 +26,16 @@ static wm_on_map_request(XMapRequestEvent *event) {
     changes.height = wm_global.screen_height;
     XConfigureWindow(wm_global.display, event->window, 15, &changes);
     XFlush(wm_global.display);
+
+    // map new window
+    XMapWindow(wm_global.display, event->window);
+
+    // add client and make new client active
+    wm_client_add(event->window);
+    wm_global.client_list.active_client = wm_global.client_list.head_client;
 }
 
-static wm_on_key_press(XKeyEvent *event) {
+void wm_on_key_press(XKeyEvent *event) {
     int keysym = XKeycodeToKeysym(wm_global.display, event->keycode, 0);
     fprintf(wm_global.log_fp, "Key Pressed: %d %d\n", keysym, event->state);
     fflush(wm_global.log_fp);
@@ -52,8 +62,60 @@ static wm_on_key_press(XKeyEvent *event) {
 
 
 
+// client list
+void wm_client_add(Window window) {
+    wm_client_t *new = malloc(sizeof(wm_client_t));
+    new->window = window;
+    new->prev = NULL;
+    new->tag_mask = wm_global.tag_mask;
+    wm_global.client_list.head_client->prev = new;
+    new->next = wm_global.client_list.head_client;
+    wm_global.client_list.head_client = new;
+    wm_global.client_list.size++;
+}
+
+void wm_client_delete(wm_client_t *client) {
+    client->next->prev = client->prev;
+    if (client->prev) {
+        client->prev->next = client->next;
+    }
+    free(client);
+    wm_global.client_list.size--;
+}
+
+void wm_client_swap(wm_client_t *client1, wm_client_t *client2) {
+    wm_client_t *buffer = client1->prev;
+    client1->prev = client2->prev;
+    client2->prev = buffer;
+
+    buffer = client1->next;
+    client1->next = client2->next;
+    client2->next = buffer;
+
+    if (client1->prev) {
+        client1->prev->next = client2;
+    }
+    client1->next->prev = client2;
+
+    if (client2->prev) {
+        client2->prev->next = client1;
+    }
+    client2->next->prev = client1;
+}
+
+void wm_client_rehead(wm_client_t *client) {
+    client->next->prev = client->prev;
+    if (client->prev) {
+        client->prev->next = client->next;
+    }
+    client->prev = NULL;
+    client->next = wm_global.client_list.head_client;
+    wm_global.client_list.head_client = client;
+}
+
+
 // basic functions
-static void wm_run() {
+void wm_run() {
     XEvent event;
     XSync(wm_global.display, False);
     while (!XNextEvent(wm_global.display, &event) && wm_global.running) {
@@ -86,6 +148,17 @@ static void wm_run() {
 void wm_init() {
     // initialize global variables
     wm_global.running = false;
+    wm_global.tag_mask = 1;
+    wm_global.client_list.size = 0;
+    wm_global.client_list.active_client = NULL;
+    wm_global.client_list.head_client = malloc(sizeof(wm_client_t));
+    wm_global.client_list.head_client->window = NULL;
+    wm_global.client_list.head_client->next = NULL;
+    wm_global.client_list.head_client->prev = NULL;
+    wm_global.client_list.head_client->tag_mask = 0;
+
+
+    // init logging
     char path_buffer[256];
     char *homedir = getenv("HOME");
     strcpy(path_buffer, homedir);
