@@ -16,7 +16,9 @@ void wm_err_detect_other(Display *display, XErrorEvent *e) {
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
     // unmap old window
-    XUnmapWindow(wm_global.display, wm_global.client_list.active_client);
+    if (wm_global.client_list.active_client) {
+        XUnmapWindow(wm_global.display, wm_global.client_list.active_client);
+    }
 
     // make new window fullscreen
     XWindowChanges changes;
