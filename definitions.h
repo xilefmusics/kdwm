@@ -47,6 +47,18 @@ typedef struct wm_keybinding {
     char *arg;
 } wm_keybinding_t;
 
+
+// user controll of wm
+void wm_focus_prev();
+void wm_focus_next();
+void wm_focus_head();
+void wm_kill_active_client();
+
+// window functions
+void wm_windows_arrange();
+void wm_windows_map();
+void wm_windows_unmap();
+
 // client list
 void wm_client_add(Window window);
 void wm_client_delete(wm_client_t *client);
@@ -54,13 +66,10 @@ void wm_client_swap(wm_client_t *client1, wm_client_t *client2);
 void wm_client_rehead(wm_client_t *client);
 wm_client_t *wm_client_get_next(wm_client_t *client);
 wm_client_t *wm_client_get_prev(wm_client_t *client);
-
-// user controll of wm
-bool wm_focus_prev();
-bool wm_focus_next();
-void wm_focus_head();
+void wm_client_focus(wm_client_t * client);
 
 // basic functions
+void wm_run();
 void wm_init();
 void wm_start();
 void wm_stop();

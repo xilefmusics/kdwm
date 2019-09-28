@@ -15,45 +15,34 @@ void wm_err_detect_other(Display *display, XErrorEvent *e) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
-    // unmap old window
-    if (wm_global.client_list.active_client) {
-        XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
-    }
-
-    // make new window fullscreen
-    XWindowChanges changes;
-    changes.x = 0;
-    changes.y = 0;
-    changes.width = wm_global.screen_width;
-    changes.height = wm_global.screen_height;
-    XConfigureWindow(wm_global.display, event->window, 15, &changes);
-    XFlush(wm_global.display);
-
     // map new window
     XMapWindow(wm_global.display, event->window);
 
     // add client and make new client active
     wm_client_add(event->window);
     wm_global.client_list.active_client = wm_global.client_list.head_client;
+
+    // arange windows
+    wm_windows_arrange();
 }
 
 void wm_on_destroy_notify(XDestroyWindowEvent *event) {
-    // search for client
-    wm_client_t *client = wm_global.client_list.head_client;
-    while (client->window != NULL && client->window != event->window) {
-        client = client->next;
-    }
-    // return if no client found
-    if (client->window == NULL) {
-        return;
-    }
-    // delete client and change focus if necessary
-    wm_client_delete(client);
-    if (client == wm_global.client_list.active_client) {
-        if (!wm_focus_next()) {
-            wm_focus_prev();
-        }
-    }
+    /* // search for client */
+    /* wm_client_t *client = wm_global.client_list.head_client; */
+    /* while (client->window != NULL && client->window != event->window) { */
+    /*     client = client->next; */
+    /* } */
+    /* // return if no client found */
+    /* if (client->window == NULL) { */
+    /*     return; */
+    /* } */
+    /* // delete client and change focus if necessary */
+    /* wm_client_delete(client); */
+    /* if (client == wm_global.client_list.active_client) { */
+    /*     if (!wm_focus_next()) { */
+    /*         wm_focus_prev(); */
+    /*     } */
+    /* } */
 }
 
 void wm_on_key_press(XKeyEvent *event) {
@@ -80,44 +69,22 @@ void wm_on_key_press(XKeyEvent *event) {
 
 
 // user controll
-bool wm_focus_next() {
-    fprintf(wm_global.log_fp, "wm_focus_next");
-    fflush(wm_global.log_fp);
-
-    // if no next client return
-    if (wm_global.client_list.active_client->next->window == NULL) {
-        return false;
+void wm_focus_next() {
+    wm_client_t * client = wm_client_get_next(wm_global.client_list.active_client);
+    if (client == NULL) {
+        return;
     }
-    // unmap current window
-    if (wm_global.client_list.active_client) {
-        XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
-    }
-    // change current windwo
-    wm_global.client_list.active_client = wm_global.client_list.active_client->next;
-    // map new current window
-    XMapWindow(wm_global.display, wm_global.client_list.active_client->window);
-
-    return true;
+    wm_global.client_list.active_client = client;
+    wm_client_focus(client);
 }
 
-bool wm_focus_prev() {
-    fprintf(wm_global.log_fp, "wm_focus_prev");
-    fflush(wm_global.log_fp);
-
-    // if no next client return
-    if (wm_global.client_list.active_client->prev == NULL) {
-        return false;;
+void wm_focus_prev() {
+    wm_client_t * client = wm_client_get_prev(wm_global.client_list.active_client);
+    if (client == NULL) {
+        return;
     }
-    // unmap current window
-    if (wm_global.client_list.active_client) {
-        XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
-    }
-    // change current windwo
-    wm_global.client_list.active_client = wm_global.client_list.active_client->prev;
-    // map new current window
-    XMapWindow(wm_global.display, wm_global.client_list.active_client->window);
-
-    return true;
+    wm_global.client_list.active_client = client;
+    wm_client_focus(client);
 }
 
 void wm_focus_head() {
@@ -127,6 +94,36 @@ void wm_focus_head() {
 void wm_kill_active_client() {
 
 }
+
+
+
+// window functions
+void wm_windows_arrange() {
+    // first window left and second window right for testing
+    XWindowChanges changes;
+    changes.x = 0;
+    changes.y = 0;
+    changes.width = wm_global.screen_width/2;
+    changes.height = wm_global.screen_height;
+    XConfigureWindow(wm_global.display, wm_global.client_list.head_client->window, 15, &changes);
+    if (wm_global.client_list.head_client->next->window != 0) {
+        changes.x = wm_global.screen_width/2;
+        changes.y = 0;
+        changes.width = wm_global.screen_width/2;
+        changes.height = wm_global.screen_height;
+        XConfigureWindow(wm_global.display, wm_global.client_list.head_client->next->window, 15, &changes);
+    }
+    XFlush(wm_global.display);
+}
+
+void wm_windows_map() {
+
+}
+
+void wm_windows_unmap() {
+
+}
+
 
 
 
@@ -192,6 +189,9 @@ wm_client_t *wm_client_get_prev(wm_client_t *client) {
     return client->prev;
 }
 
+void wm_client_focus(wm_client_t *client) {
+    XSetInputFocus(wm_global.display, client->window, RevertToPointerRoot, CurrentTime);
+}
 
 // basic functions
 void wm_run() {
