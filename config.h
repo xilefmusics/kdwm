@@ -1,5 +1,7 @@
 #include "definitions.h"
 
+static const float MASTER_WIDTH = 0.55;
+
 #define MODKEY Mod4Mask
 
 static wm_keybinding_t wm_keybindings[] = {

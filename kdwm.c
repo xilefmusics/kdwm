@@ -102,20 +102,47 @@ void wm_spawn(char *name) {
 
 // window functions
 void wm_windows_arrange() {
-    // first window left and second window right for testing
-    XWindowChanges changes;
-    changes.x = 0;
-    changes.y = 0;
-    changes.width = wm_global.screen_width/2;
-    changes.height = wm_global.screen_height;
-    XConfigureWindow(wm_global.display, wm_global.client_list.head_client->window, 15, &changes);
-    if (wm_global.client_list.head_client->next->window != 0) {
-        changes.x = wm_global.screen_width/2;
+    if (wm_global.client_list.size == 0) {
+
+    } else if (wm_global.client_list.size == 1) {
+        XWindowChanges changes;
+        changes.x = 0;
         changes.y = 0;
-        changes.width = wm_global.screen_width/2;
+        changes.width = wm_global.screen_width;
         changes.height = wm_global.screen_height;
-        XConfigureWindow(wm_global.display, wm_global.client_list.head_client->next->window, 15, &changes);
+        XConfigureWindow(wm_global.display, wm_global.client_list.head_client->window, 15, &changes);
+    } else {
+        int num_of_slaves = wm_global.client_list.size - 1;
+
+        int slave_height = wm_global.screen_height / num_of_slaves;
+        int master_height = wm_global.screen_height;
+
+        int master_width = (int) wm_global.screen_width * MASTER_WIDTH;
+        int slave_width = wm_global.screen_width - master_width;
+
+        wm_client_t *client = wm_global.client_list.head_client;
+
+        XWindowChanges changes;
+
+        changes.x = 0;
+        changes.y = 0;
+        changes.width = master_width;
+        changes.height = master_height;
+
+        XConfigureWindow(wm_global.display, client->window, 15, &changes);
+
+        for (int i = 0; i < num_of_slaves; i++) {
+            client = client->next;
+
+            changes.x = master_width;
+            changes.y = i*slave_height;
+            changes.width = slave_width;
+            changes.height = slave_height;
+
+            XConfigureWindow(wm_global.display, client->window, 15, &changes);
+        }
     }
+
     XFlush(wm_global.display);
 }
 
@@ -247,6 +274,7 @@ void wm_init() {
     wm_global.client_list.head_client->next = NULL;
     wm_global.client_list.head_client->prev = NULL;
     wm_global.client_list.head_client->tag_mask = 0;
+    wm_global.master_width = MASTER_WIDTH;
 
 
     // init logging

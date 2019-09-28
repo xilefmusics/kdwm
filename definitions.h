@@ -36,6 +36,7 @@ typedef struct wm_global {
     bool running;
     FILE *log_fp;
     int tag_mask;
+    float master_width;
     wm_client_list_t client_list;
 } wm_global_t;
 
