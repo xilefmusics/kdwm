@@ -7,7 +7,7 @@ clean:
 	rm kdwm
 
 install:
-	cp kdwm /bin/kdwm
+	cp -f kdwm /bin/kdwm
 
 run: kdwm
 	clear
