@@ -18,31 +18,27 @@ void wm_on_map_request(XMapRequestEvent *event) {
     // map new window
     XMapWindow(wm_global.display, event->window);
 
-    // add client and make new client active
+    // add client and focus ist
     wm_client_add(event->window);
-    wm_global.client_list.active_client = wm_global.client_list.head_client;
+    wm_client_focus(wm_global.client_list.head_client);
 
     // arange windows
     wm_windows_arrange();
 }
 
 void wm_on_destroy_notify(XDestroyWindowEvent *event) {
-    /* // search for client */
-    /* wm_client_t *client = wm_global.client_list.head_client; */
-    /* while (client->window != NULL && client->window != event->window) { */
-    /*     client = client->next; */
-    /* } */
-    /* // return if no client found */
-    /* if (client->window == NULL) { */
-    /*     return; */
-    /* } */
-    /* // delete client and change focus if necessary */
-    /* wm_client_delete(client); */
-    /* if (client == wm_global.client_list.active_client) { */
-    /*     if (!wm_focus_next()) { */
-    /*         wm_focus_prev(); */
-    /*     } */
-    /* } */
+    // search for client
+    wm_client_t *client = wm_global.client_list.head_client;
+    while (client->window != 0 && client->window != event->window) {
+        client = client->next;
+    }
+    // return if no client found
+    if (client->window == 0) {
+        return;
+    }
+    // delete client and rearrange windows
+    wm_client_delete(client);
+    wm_windows_arrange();
 }
 
 void wm_on_key_press(XKeyEvent *event) {
@@ -151,6 +147,9 @@ void wm_client_delete(wm_client_t *client) {
     if (client->prev) {
         client->prev->next = client->next;
     }
+    if (client == wm_global.client_list.head_client) {
+        wm_global.client_list.head_client = client->next;
+    }
     free(client);
     wm_global.client_list.size--;
 }
@@ -197,6 +196,7 @@ wm_client_t *wm_client_get_prev(wm_client_t *client) {
 }
 
 void wm_client_focus(wm_client_t *client) {
+    wm_global.client_list.active_client = client;
     XSetInputFocus(wm_global.display, client->window, RevertToPointerRoot, CurrentTime);
 }
 
