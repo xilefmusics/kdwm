@@ -13,6 +13,8 @@
 // definitions
 typedef enum {NONE, STRING, INTEGER, DOUBLE} wm_arg_types;
 
+enum {WM_PROTOCOLS, WM_DELETE_WINDOW};
+
 typedef struct wm_client wm_client_t;
 struct wm_client {
     Window window;
@@ -37,6 +39,7 @@ typedef struct wm_global {
     FILE *log_fp;
     int tag_mask;
     float master_width;
+    Atom atoms[2];
     wm_client_list_t client_list;
 } wm_global_t;
 
@@ -75,7 +78,9 @@ void wm_client_swap(wm_client_t *client1, wm_client_t *client2);
 void wm_client_rehead(wm_client_t *client);
 wm_client_t *wm_client_get_next(wm_client_t *client);
 wm_client_t *wm_client_get_prev(wm_client_t *client);
-void wm_client_focus(wm_client_t * client);
+void wm_client_focus(wm_client_t *client);
+void wm_client_send_XEvent(wm_client_t *client, Atom atom);
+
 
 // basic functions
 void wm_run();

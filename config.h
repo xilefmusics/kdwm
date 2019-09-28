@@ -10,4 +10,5 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY, XK_r, wm_spawn, STRING, "dmenu_run"},
     {MODKEY, XK_j, wm_focus_next, NONE, NULL},
     {MODKEY, XK_k, wm_focus_prev, NONE, NULL},
+    {MODKEY, XK_q, wm_kill_active_client, NONE, NULL},
 };

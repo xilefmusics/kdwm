@@ -88,7 +88,7 @@ void wm_focus_head() {
 }
 
 void wm_kill_active_client() {
-
+    wm_client_send_XEvent(wm_global.client_list.active_client, wm_global.atoms[WM_DELETE_WINDOW]);
 }
 
 void wm_spawn(char *name) {
@@ -227,6 +227,17 @@ void wm_client_focus(wm_client_t *client) {
     XSetInputFocus(wm_global.display, client->window, RevertToPointerRoot, CurrentTime);
 }
 
+void wm_client_send_XEvent(wm_client_t *client, Atom atom) {
+    XEvent event;
+    event.type = ClientMessage;
+    event.xclient.window = client->window;
+    event.xclient.message_type = wm_global.atoms[WM_PROTOCOLS];
+    event.xclient.format = 32;
+    event.xclient.data.l[0] = atom;
+	event.xclient.data.l[1] = CurrentTime;
+    XSendEvent(wm_global.display, client->window, false, NoEventMask, &event);
+}
+
 // basic functions
 void wm_run() {
     XEvent event;
@@ -322,6 +333,10 @@ void wm_init() {
             wm_client_focus(wm_global.client_list.head_client);
         }
     }
+
+    // get atoms
+    wm_global.atoms[WM_PROTOCOLS] = XInternAtom(wm_global.display, "WM_PROTOCOLS", false);
+	wm_global.atoms[WM_DELETE_WINDOW] = XInternAtom(wm_global.display, "WM_DELETE_WINDOW", false);
 }
 
 void wm_start() {
