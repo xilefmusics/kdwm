@@ -47,12 +47,20 @@ typedef struct wm_keybinding {
     char *arg;
 } wm_keybinding_t;
 
+// error handler
+int wm_err_detect_other(Display * display, XErrorEvent *event);
+
+// event handler
+void wm_on_map_request(XMapRequestEvent *event);
+void wm_on_destroy_notify(XDestroyWindowEvent *event);
+void wm_on_key_press(XKeyEvent *event);
 
 // user controll of wm
 void wm_focus_prev();
 void wm_focus_next();
 void wm_focus_head();
 void wm_kill_active_client();
+void wm_spawn(char *name);
 
 // window functions
 void wm_windows_arrange();

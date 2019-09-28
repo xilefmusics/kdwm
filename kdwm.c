@@ -6,7 +6,7 @@ static wm_global_t wm_global;
 
 
 // error handler
-void wm_err_detect_other(Display *display, XErrorEvent *e) {
+int wm_err_detect_other(Display *display, XErrorEvent *event) {
     fprintf(stderr, "ERROR: an other windowmanager is already started\n");
     exit(EXIT_FAILURE);
 }
@@ -95,6 +95,13 @@ void wm_kill_active_client() {
 
 }
 
+void wm_spawn(char *name) {
+    char buffer[256];
+    strcpy(buffer, name);
+    strcat(buffer, " &");
+    system(buffer);
+}
+
 
 
 // window functions
@@ -179,7 +186,7 @@ void wm_client_rehead(wm_client_t *client) {
 }
 
 wm_client_t *wm_client_get_next(wm_client_t *client) {
-    if (client->next->window == NULL) {
+    if (client->next->window == 0) {
         return NULL;
     }
     return client->next;
@@ -236,7 +243,7 @@ void wm_init() {
     wm_global.client_list.size = 0;
     wm_global.client_list.active_client = NULL;
     wm_global.client_list.head_client = malloc(sizeof(wm_client_t));
-    wm_global.client_list.head_client->window = NULL;
+    wm_global.client_list.head_client->window = 0;
     wm_global.client_list.head_client->next = NULL;
     wm_global.client_list.head_client->prev = NULL;
     wm_global.client_list.head_client->tag_mask = 0;
