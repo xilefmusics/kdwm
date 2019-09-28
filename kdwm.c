@@ -277,6 +277,23 @@ void wm_init() {
 
     // grab all key events while MODKEY is pressed
     XGrabKey(wm_global.display, AnyKey, MODKEY, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
+
+    // add windows who are actually open
+    Window root_return, parent_return, *children_return;
+    unsigned int nchildren_return;
+    bool client_added = false;
+    if (XQueryTree(wm_global.display, wm_global.root_window, &root_return, &parent_return, &children_return, &nchildren_return)) {
+        for (int i = 0; i < nchildren_return; i++) {
+            fprintf(wm_global.log_fp, "Add client\n");
+            fflush(wm_global.log_fp);
+            wm_client_add(children_return[i]);
+            client_added = true;
+        }
+        if (client_added) {
+            wm_windows_arrange();
+            wm_client_focus(wm_global.client_list.head_client);
+        }
+    }
 }
 
 void wm_start() {
