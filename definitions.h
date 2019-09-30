@@ -68,6 +68,7 @@ void wm_focus_next();
 void wm_focus_head();
 void wm_kill_active_client();
 void wm_spawn(char *name);
+void wm_set_tag_of_focused_client(int tag);
 
 // window functions
 void wm_windows_arrange();

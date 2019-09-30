@@ -103,6 +103,10 @@ void wm_spawn(char *name) {
     system(buffer);
 }
 
+void wm_set_tag_of_focused_client(int tag){
+    wm_count_clients_in_tag(tag);
+    wm_global.client_list.active_client->tag_mask = tag;
+}
 
 
 // window functions
@@ -257,6 +261,8 @@ int wm_count_clients_in_tag(int tag){
             result++;
         }
     }
+    fprintf(wm_global.log_fp, "Number of clients with tag %i is equal to %i\n", tag, result);
+    fflush(wm_global.log_fp);
     return result;
 }
 
