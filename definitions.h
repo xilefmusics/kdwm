@@ -51,6 +51,9 @@ typedef struct wm_keybinding {
     char *arg;
 } wm_keybinding_t;
 
+// developement and debugging features
+void wm_log(char *logmessage);
+
 // error handler
 int wm_err_detect_other(Display * display, XErrorEvent *event);
 
@@ -72,6 +75,7 @@ void wm_windows_map();
 void wm_windows_unmap();
 
 // client list
+int wm_count_clients_in_tag(int tag);
 void wm_client_add(Window window);
 void wm_client_delete(wm_client_t *client);
 void wm_client_swap(wm_client_t *client1, wm_client_t *client2);

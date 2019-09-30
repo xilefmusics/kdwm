@@ -1,13 +1,18 @@
 #include "config.h"
 
-
 // stores to global configuration of the windowmanager
 static wm_global_t wm_global;
 
+// developement and debugging features
+void wm_log(char *logmessage){
+    fprintf(wm_global.log_fp, "%s\n", logmessage);
+    fflush(wm_global.log_fp);
+}
 
 // error handler
 int wm_err_detect_other(Display *display, XErrorEvent *event) {
-    fprintf(stderr, "ERROR: an other windowmanager is already started\n");
+    wm_log("ERROR: another windowmanager is already in use");
+    fprintf(stderr, "ERROR: another windowmanager is already started\n");
     exit(EXIT_FAILURE);
 }
 
@@ -18,7 +23,7 @@ void wm_on_map_request(XMapRequestEvent *event) {
     // map new window
     XMapWindow(wm_global.display, event->window);
 
-    // add client and focus ist
+    // add client and focus it
     wm_client_add(event->window);
     wm_client_focus(wm_global.client_list.head_client);
 
@@ -238,6 +243,23 @@ void wm_client_send_XEvent(wm_client_t *client, Atom atom) {
     XSendEvent(wm_global.display, client->window, false, NoEventMask, &event);
 }
 
+int wm_count_clients_in_tag(int tag){
+    int result = 0;
+    wm_client_t *client = wm_global.client_list.head_client;
+    if (client->tag_mask & tag){
+        result = 1;
+    } else{
+        result = 0;
+    }
+    for (int i=1;i<wm_global.client_list.size;i++){
+        client = client->next;
+        if (client->tag_mask & tag){
+            result++;
+        }
+    }
+    return result;
+}
+
 // basic functions
 void wm_run() {
     XEvent event;
@@ -245,26 +267,21 @@ void wm_run() {
     while (!XNextEvent(wm_global.display, &event) && wm_global.running) {
         switch(event.type) {
             case MapRequest:
-                fprintf(wm_global.log_fp, "Handle MapRequest\n");
-                fflush(wm_global.log_fp);
+                wm_log("Handle MapRequest\n");
                 wm_on_map_request(&event.xmaprequest);
                 break;
             case KeyPress:
-                fprintf(wm_global.log_fp, "Handle KeyPress\n");
-                fflush(wm_global.log_fp);
+                wm_log("Handle KeyPress\n");
                 wm_on_key_press(&event.xkey);
                 break;
             case CreateNotify:
-                fprintf(wm_global.log_fp, "Got unhandled CreateNotify\n");
-                fflush(wm_global.log_fp);
+                wm_log("Got unhandled CreateNotify\n");
                 break;
             case MappingNotify:
-                fprintf(wm_global.log_fp, "Got unhandled MappingNotify\n");
-                fflush(wm_global.log_fp);
+                wm_log("Got unhandled MappingNotify\n");
                 break;
             case DestroyNotify:
-                fprintf(wm_global.log_fp, "Handle DestroyNotify\n");
-                fflush(wm_global.log_fp);
+                wm_log("Handle DestroyNotify\n");
                 wm_on_destroy_notify(&event.xdestroywindow);
                 break;
             default:
