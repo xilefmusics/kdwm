@@ -65,12 +65,15 @@ void wm_on_key_press(XKeyEvent *event);
 // user controll of wm
 void wm_focus_prev();
 void wm_focus_next();
-void wm_focus_head();
 void wm_kill_active_client();
 void wm_spawn(char *name);
 void wm_set_tag_mask_of_focused_client(int tag_mask);
 void wm_add_tag_to_tag_mask(int tag);
+void wm_add_tag_to_client(int tag);
 void wm_retag(int tag_mask);
+void wm_rehead();
+void wm_client_up();
+void wm_client_down();
 
 // client list
 void wm_client_add(Window window);

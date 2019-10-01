@@ -16,6 +16,9 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
+    // log
+    logsi("created window", event->window);
+
     // map new window
     XMapWindow(wm_global.display, event->window);
 
@@ -85,11 +88,10 @@ void wm_focus_prev() {
     wm_client_focus(client);
 }
 
-void wm_focus_head() {
-
-}
-
 void wm_kill_active_client() {
+    if (!wm_global.client_list.active_client) {
+        return;
+    }
     wm_client_t *next = wm_client_get_next(wm_global.client_list.active_client);
     wm_client_t *prev = wm_client_get_prev(wm_global.client_list.active_client);
     wm_client_send_XEvent(wm_global.client_list.active_client, wm_global.atoms[WM_DELETE_WINDOW]);
@@ -120,6 +122,10 @@ void wm_add_tag_to_tag_mask(int tag) {
     wm_retag(wm_global.tag_mask | tag);
 }
 
+void wm_add_tag_to_client(int tag) {
+    wm_global.client_list.active_client->tag_mask = wm_global.client_list.active_client->tag_mask | tag;
+}
+
 void wm_retag(int tag_mask) {
     if (tag_mask == wm_global.tag_mask) {
         return;
@@ -136,6 +142,26 @@ void wm_retag(int tag_mask) {
     wm_clients_arrange();
 }
 
+void wm_rehead() {
+    wm_client_rehead(wm_global.client_list.active_client);
+    wm_clients_arrange();
+}
+
+void wm_client_up() {
+    wm_client_t *prev = wm_client_get_prev(wm_global.client_list.active_client);
+    if (prev) {
+        wm_client_swap(prev, wm_global.client_list.active_client);
+        wm_clients_arrange();
+    }
+}
+
+void wm_client_down() {
+    wm_client_t *next = wm_client_get_next(wm_global.client_list.active_client);
+    if (next) {
+        wm_client_swap(wm_global.client_list.active_client, next);
+        wm_clients_arrange();
+    }
+}
 
 
 // client list
@@ -163,26 +189,54 @@ void wm_client_delete(wm_client_t *client) {
 }
 
 void wm_client_swap(wm_client_t *client1, wm_client_t *client2) {
+    logs("preswap");
+    logsi("client1", client1->window);
+    logsi("client2", client2->window);
+    /* logsi("client1->prev", client1->prev->window); */
+    logsi("client1->next", client1->next->window);
+    logsi("client2->prev", client2->prev->window);
+    /* logsi("client2->next", client2->next->window); */
+    /* logsi("client1->prev->next", client1->prev->next->window); */
+    logsi("client1->next->prev", client1->next->prev->window);
+    logsi("client2->prev->next", client2->prev->next->window);
+    /* logsi("client2->next->prev", client2->next->prev->window); */
+
+    if (client1 == wm_global.client_list.head_client) {
+        wm_global.client_list.head_client = client2;
+    }
+
     wm_client_t *buffer = client1->prev;
-    client1->prev = client2->prev;
+    client1->prev = client2;
     client2->prev = buffer;
 
-    buffer = client1->next;
-    client1->next = client2->next;
-    client2->next = buffer;
-
-    if (client1->prev) {
-        client1->prev->next = client2;
-    }
-    client1->next->prev = client2;
+    buffer = client2->next;
+    client2->next = client1;
+    client1->next = buffer;
 
     if (client2->prev) {
-        client2->prev->next = client1;
+        client2->prev->next = client2;
     }
-    client2->next->prev = client1;
+    if (client1->next->window) {
+        client1->next->prev = client1;
+    }
+
+    logs("postswap");
+    logsi("client1", client1->window);
+    logsi("client2", client2->window);
+    logsi("client1->prev", client1->prev->window);
+    /* logsi("client1->next", client1->next->window); */
+    /* logsi("client2->prev", client2->prev->window); */
+    logsi("client2->next", client2->next->window);
+    logsi("client1->prev->next", client1->prev->next->window);
+    /* logsi("client1->next->prev", client1->next->prev->window); */
+    /* logsi("client2->prev->next", client2->prev->next->window); */
+    logsi("client2->next->prev", client2->next->prev->window);
 }
 
 void wm_client_rehead(wm_client_t *client) {
+    if (client == wm_global.client_list.head_client) {
+        return;
+    }
     client->next->prev = client->prev;
     if (client->prev) {
         client->prev->next = client->next;
@@ -217,7 +271,7 @@ void wm_client_focus(wm_client_t *client) {
     XSetInputFocus(wm_global.display, client->window, RevertToPointerRoot, CurrentTime);
 }
 
-void wm_client_find_new_focus(wm_global_t *prev, wm_global_t *next) {
+void wm_client_find_new_focus(wm_client_t *prev, wm_client_t *next) {
     if (next){
         wm_client_focus(next);
     } else if (prev) {
