@@ -24,7 +24,7 @@ void wm_on_map_request(XMapRequestEvent *event) {
     wm_client_focus(wm_global.client_list.head_client);
 
     // set tag_mask of client
-    wm_set_tag_mask_of_focused_client(wm_global.tag_mask);
+    wm_global.client_list.active_client->tag_mask = wm_global.tag_mask;
 
     // arange windows
     wm_clients_arrange();
@@ -101,8 +101,21 @@ void wm_spawn(char *name) {
 }
 
 void wm_set_tag_mask_of_focused_client(int tag_mask){
+
     wm_clients_count(tag_mask);
     wm_global.client_list.active_client->tag_mask = tag_mask;
+
+    if (!(tag_mask & wm_global.tag_mask)) {
+        XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
+        wm_clients_arrange();
+        wm_focus_prev();
+        wm_focus_next();
+    }
+}
+
+
+void wm_add_tag_to_tag_mask(int tag) {
+    wm_retag(wm_global.tag_mask | tag);
 }
 
 void wm_retag(int tag_mask) {
@@ -247,7 +260,6 @@ void wm_clients_arrange() {
         changes.width = wm_global.screen_width;
         changes.height = wm_global.screen_height;
         XConfigureWindow(wm_global.display, client->window, 15, &changes);
-        fprintf(wm_global.log_fp, "-> master: %d\n", client->window);
     } else {
         int num_of_slaves = num_of_clients - 1;
 

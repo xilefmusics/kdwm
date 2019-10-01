@@ -69,6 +69,7 @@ void wm_focus_head();
 void wm_kill_active_client();
 void wm_spawn(char *name);
 void wm_set_tag_mask_of_focused_client(int tag_mask);
+void wm_add_tag_to_tag_mask(int tag);
 void wm_retag(int tag_mask);
 
 // client list
