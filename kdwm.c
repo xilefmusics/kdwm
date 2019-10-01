@@ -90,7 +90,10 @@ void wm_focus_head() {
 }
 
 void wm_kill_active_client() {
+    wm_client_t *next = wm_client_get_next(wm_global.client_list.active_client);
+    wm_client_t *prev = wm_client_get_prev(wm_global.client_list.active_client);
     wm_client_send_XEvent(wm_global.client_list.active_client, wm_global.atoms[WM_DELETE_WINDOW]);
+    wm_client_find_new_focus(next, prev);
 }
 
 void wm_spawn(char *name) {
@@ -107,9 +110,8 @@ void wm_set_tag_mask_of_focused_client(int tag_mask){
 
     if (!(tag_mask & wm_global.tag_mask)) {
         XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
+        wm_client_find_new_focus(wm_client_get_next(wm_global.client_list.active_client), wm_client_get_prev(wm_global.client_list.active_client));
         wm_clients_arrange();
-        wm_focus_prev();
-        wm_focus_next();
     }
 }
 
@@ -214,6 +216,17 @@ void wm_client_focus(wm_client_t *client) {
     wm_global.client_list.active_client = client;
     XSetInputFocus(wm_global.display, client->window, RevertToPointerRoot, CurrentTime);
 }
+
+void wm_client_find_new_focus(wm_global_t *prev, wm_global_t *next) {
+    if (next){
+        wm_client_focus(next);
+    } else if (prev) {
+        wm_client_focus(prev);
+    } else {
+        wm_global.client_list.active_client = NULL;
+    }
+}
+
 
 void wm_client_send_XEvent(wm_client_t *client, Atom atom) {
     XEvent event;

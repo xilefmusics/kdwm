@@ -80,6 +80,7 @@ void wm_client_rehead(wm_client_t *client);
 wm_client_t *wm_client_get_next(wm_client_t *client);
 wm_client_t *wm_client_get_prev(wm_client_t *client);
 void wm_client_focus(wm_client_t *client);
+void wm_client_find_new_focus();
 void wm_client_send_XEvent(wm_client_t *client, Atom atom);
 int wm_clients_count(int tag_mask);
 void wm_clients_arrange();
