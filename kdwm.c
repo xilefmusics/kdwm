@@ -20,6 +20,8 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
+    fprintf(wm_global.log_fp, "Created window: %d\n", event->window);
+    fflush(wm_global.log_fp);
     // map new window
     XMapWindow(wm_global.display, event->window);
 
@@ -27,8 +29,11 @@ void wm_on_map_request(XMapRequestEvent *event) {
     wm_client_add(event->window);
     wm_client_focus(wm_global.client_list.head_client);
 
+    // set tag_mask of client
+    wm_set_tag_mask_of_focused_client(wm_global.tag_mask);
+
     // arange windows
-    wm_windows_arrange();
+    wm_clients_arrange();
 }
 
 void wm_on_destroy_notify(XDestroyWindowEvent *event) {
@@ -41,9 +46,9 @@ void wm_on_destroy_notify(XDestroyWindowEvent *event) {
     if (client->window == 0) {
         return;
     }
-    // delete client and rearrange windows
+    // delete client and rearrange clients
     wm_client_delete(client);
-    wm_windows_arrange();
+    wm_clients_arrange();
 }
 
 void wm_on_key_press(XKeyEvent *event) {
@@ -80,12 +85,15 @@ void wm_focus_next() {
 }
 
 void wm_focus_prev() {
-    wm_client_t * client = wm_client_get_prev(wm_global.client_list.active_client);
+    wm_log("start focus prev");
+    wm_client_t *client = wm_client_get_prev(wm_global.client_list.active_client);
     if (client == NULL) {
         return;
     }
+    wm_log("new client not null");
     wm_global.client_list.active_client = client;
     wm_client_focus(client);
+    wm_log("end focus prev");
 }
 
 void wm_focus_head() {
@@ -104,65 +112,28 @@ void wm_spawn(char *name) {
 }
 
 void wm_set_tag_mask_of_focused_client(int tag_mask){
-    wm_client_count(tag_mask);
+    wm_clients_count(tag_mask);
     wm_global.client_list.active_client->tag_mask = tag_mask;
 }
 
+void wm_retag(int tag_mask) {
+    fprintf(wm_global.log_fp, "Switch to tag_mask %d with %d clients in it\n", tag_mask, wm_clients_count(tag_mask));
+    fflush(wm_global.log_fp);
 
-// window functions
-void wm_windows_arrange() {
-    if (wm_global.client_list.size == 0) {
-
-    } else if (wm_global.client_list.size == 1) {
-        XWindowChanges changes;
-        changes.x = 0;
-        changes.y = 0;
-        changes.width = wm_global.screen_width;
-        changes.height = wm_global.screen_height;
-        XConfigureWindow(wm_global.display, wm_global.client_list.head_client->window, 15, &changes);
-    } else {
-        int num_of_slaves = wm_global.client_list.size - 1;
-
-        int slave_height = wm_global.screen_height / num_of_slaves;
-        int master_height = wm_global.screen_height;
-
-        int master_width = (int) wm_global.screen_width * MASTER_WIDTH;
-        int slave_width = wm_global.screen_width - master_width;
-
-        wm_client_t *client = wm_global.client_list.head_client;
-
-        XWindowChanges changes;
-
-        changes.x = 0;
-        changes.y = 0;
-        changes.width = master_width;
-        changes.height = master_height;
-
-        XConfigureWindow(wm_global.display, client->window, 15, &changes);
-
-        for (int i = 0; i < num_of_slaves; i++) {
-            client = client->next;
-
-            changes.x = master_width;
-            changes.y = i*slave_height;
-            changes.width = slave_width;
-            changes.height = slave_height;
-
-            XConfigureWindow(wm_global.display, client->window, 15, &changes);
-        }
+    if (tag_mask == wm_global.tag_mask) {
+        return;
     }
 
-    XFlush(wm_global.display);
+    wm_clients_unmap();
+    wm_global.tag_mask = tag_mask;
+    if (wm_global.client_list.head_client->tag_mask & tag_mask) {
+        wm_global.client_list.active_client = wm_global.client_list.head_client;
+    } else {
+        wm_global.client_list.active_client = wm_client_get_next(wm_global.client_list.head_client);
+    }
+    wm_clients_map();
+    wm_clients_arrange();
 }
-
-void wm_windows_map() {
-
-}
-
-void wm_windows_unmap() {
-
-}
-
 
 
 
@@ -221,14 +192,30 @@ void wm_client_rehead(wm_client_t *client) {
 }
 
 wm_client_t *wm_client_get_next(wm_client_t *client) {
-    if (client->next->window == 0) {
-        return NULL;
+    while (client->window != 0) {
+        client = client->next;
+        if (client->tag_mask & wm_global.tag_mask) {
+            return client;
+        }
     }
-    return client->next;
+    return NULL;
 }
 
 wm_client_t *wm_client_get_prev(wm_client_t *client) {
-    return client->prev;
+    wm_log("start get prev");
+    while (client != NULL) {
+        wm_log("in loop");
+        fprintf(wm_global.log_fp, "actual window: %d\n", client->window);
+        fflush(wm_global.log_fp);
+        client = client->prev;
+        wm_log("after client->prev");
+        if (!client || client->tag_mask & wm_global.tag_mask) {
+            wm_log("client found stop");
+            return client;
+        }
+    }
+    wm_log("stop get prev");
+    return NULL;
 }
 
 void wm_client_focus(wm_client_t *client) {
@@ -247,7 +234,7 @@ void wm_client_send_XEvent(wm_client_t *client, Atom atom) {
     XSendEvent(wm_global.display, client->window, false, NoEventMask, &event);
 }
 
-int wm_client_count(int tag_mask){
+int wm_clients_count(int tag_mask){
     int result = 0;
     wm_client_t *client = wm_global.client_list.head_client;
     if (client->tag_mask & tag_mask){
@@ -264,6 +251,86 @@ int wm_client_count(int tag_mask){
     fprintf(wm_global.log_fp, "Number of clients with tag %i is equal to %i\n", tag_mask, result);
     fflush(wm_global.log_fp);
     return result;
+}
+
+void wm_clients_arrange() {
+    int num_of_clients = wm_clients_count(wm_global.tag_mask);
+    fprintf(wm_global.log_fp, "arrange windows: \n");
+
+    wm_client_t *client = wm_global.client_list.head_client;
+    if (!(client->tag_mask & wm_global.tag_mask)) {
+        client = wm_client_get_next(client);
+    }
+
+    if (num_of_clients == 0) {
+
+    } else if (num_of_clients == 1) {
+        XWindowChanges changes;
+        changes.x = 0;
+        changes.y = 0;
+        changes.width = wm_global.screen_width;
+        changes.height = wm_global.screen_height;
+        XConfigureWindow(wm_global.display, client->window, 15, &changes);
+        fprintf(wm_global.log_fp, "-> master: %d\n", client->window);
+    } else {
+        int num_of_slaves = num_of_clients - 1;
+
+        int slave_height = wm_global.screen_height / num_of_slaves;
+        int master_height = wm_global.screen_height;
+
+        int master_width = (int) wm_global.screen_width * MASTER_WIDTH;
+        int slave_width = wm_global.screen_width - master_width;
+
+        XWindowChanges changes;
+
+        changes.x = 0;
+        changes.y = 0;
+        changes.width = master_width;
+        changes.height = master_height;
+
+        XConfigureWindow(wm_global.display, client->window, 15, &changes);
+
+        fprintf(wm_global.log_fp, "-> master: %d\n", client->window);
+
+        for (int i = 0; i < num_of_slaves; i++) {
+            client = wm_client_get_next(client);
+            fprintf(wm_global.log_fp, "-> slave%d: %d\n", i, client->window);
+
+            changes.x = master_width;
+            changes.y = i*slave_height;
+            changes.width = slave_width;
+            changes.height = slave_height;
+
+            XConfigureWindow(wm_global.display, client->window, 15, &changes);
+        }
+    }
+
+    XFlush(wm_global.display);
+    fflush(wm_global.log_fp);
+}
+
+void wm_clients_map() {
+    wm_client_t *client = wm_global.client_list.head_client;
+    if (client == NULL) {
+        return;
+    }
+    do {
+        if (client->tag_mask & wm_global.tag_mask) {
+            XMapWindow(wm_global.display, client->window);
+        }
+    } while ((client = client->next) != NULL);
+}
+
+void wm_clients_unmap() {
+    wm_client_t *client = wm_global.client_list.head_client;
+    if (client == NULL) {
+        return;
+    }
+    do {
+        if (client->tag_mask & wm_global.tag_mask) {
+            XUnmapWindow(wm_global.display, client->window);
+        }
+    } while ((client = client->next) != NULL);
 }
 
 // basic functions
@@ -353,7 +420,7 @@ void wm_init() {
             client_added = true;
         }
         if (client_added) {
-            wm_windows_arrange();
+            wm_clients_arrange();
             wm_client_focus(wm_global.client_list.head_client);
         }
     }

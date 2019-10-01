@@ -69,14 +69,9 @@ void wm_focus_head();
 void wm_kill_active_client();
 void wm_spawn(char *name);
 void wm_set_tag_mask_of_focused_client(int tag_mask);
-
-// window functions
-void wm_windows_arrange();
-void wm_windows_map();
-void wm_windows_unmap();
+void wm_retag(int tag_mask);
 
 // client list
-int wm_client_count(int tag_mask);
 void wm_client_add(Window window);
 void wm_client_delete(wm_client_t *client);
 void wm_client_swap(wm_client_t *client1, wm_client_t *client2);
@@ -85,7 +80,10 @@ wm_client_t *wm_client_get_next(wm_client_t *client);
 wm_client_t *wm_client_get_prev(wm_client_t *client);
 void wm_client_focus(wm_client_t *client);
 void wm_client_send_XEvent(wm_client_t *client, Atom atom);
-
+int wm_clients_count(int tag_mask);
+void wm_clients_arrange();
+void wm_clients_map();
+void wm_clients_unmap();
 
 // basic functions
 void wm_run();
@@ -93,4 +91,3 @@ void wm_init();
 void wm_start();
 void wm_stop();
 void wm_tini();
-
