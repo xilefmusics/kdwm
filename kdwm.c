@@ -3,15 +3,11 @@
 // stores to global configuration of the windowmanager
 static wm_global_t wm_global;
 
-// developement and debugging features
-void wm_log(char *logmessage){
-    fprintf(wm_global.log_fp, "%s\n", logmessage);
-    fflush(wm_global.log_fp);
-}
+// logging
+#include "log.c"
 
 // error handler
 int wm_err_detect_other(Display *display, XErrorEvent *event) {
-    wm_log("ERROR: another windowmanager is already in use");
     fprintf(stderr, "ERROR: another windowmanager is already started\n");
     exit(EXIT_FAILURE);
 }
@@ -20,8 +16,6 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
-    fprintf(wm_global.log_fp, "Created window: %d\n", event->window);
-    fflush(wm_global.log_fp);
     // map new window
     XMapWindow(wm_global.display, event->window);
 
@@ -53,8 +47,6 @@ void wm_on_destroy_notify(XDestroyWindowEvent *event) {
 
 void wm_on_key_press(XKeyEvent *event) {
     int keysym = XKeycodeToKeysym(wm_global.display, event->keycode, 0);
-    fprintf(wm_global.log_fp, "Key Pressed: %d %d\n", keysym, event->state);
-    fflush(wm_global.log_fp);
 
     for (int i = 0; i < LENGTH(wm_keybindings); ++i) {
         if (wm_keybindings[i].keysym == keysym && wm_keybindings[i].mod == event->state) {
@@ -85,15 +77,12 @@ void wm_focus_next() {
 }
 
 void wm_focus_prev() {
-    wm_log("start focus prev");
     wm_client_t *client = wm_client_get_prev(wm_global.client_list.active_client);
     if (client == NULL) {
         return;
     }
-    wm_log("new client not null");
     wm_global.client_list.active_client = client;
     wm_client_focus(client);
-    wm_log("end focus prev");
 }
 
 void wm_focus_head() {
@@ -117,9 +106,6 @@ void wm_set_tag_mask_of_focused_client(int tag_mask){
 }
 
 void wm_retag(int tag_mask) {
-    fprintf(wm_global.log_fp, "Switch to tag_mask %d with %d clients in it\n", tag_mask, wm_clients_count(tag_mask));
-    fflush(wm_global.log_fp);
-
     if (tag_mask == wm_global.tag_mask) {
         return;
     }
@@ -202,19 +188,12 @@ wm_client_t *wm_client_get_next(wm_client_t *client) {
 }
 
 wm_client_t *wm_client_get_prev(wm_client_t *client) {
-    wm_log("start get prev");
     while (client != NULL) {
-        wm_log("in loop");
-        fprintf(wm_global.log_fp, "actual window: %d\n", client->window);
-        fflush(wm_global.log_fp);
         client = client->prev;
-        wm_log("after client->prev");
         if (!client || client->tag_mask & wm_global.tag_mask) {
-            wm_log("client found stop");
             return client;
         }
     }
-    wm_log("stop get prev");
     return NULL;
 }
 
@@ -248,14 +227,11 @@ int wm_clients_count(int tag_mask){
             result++;
         }
     }
-    fprintf(wm_global.log_fp, "Number of clients with tag %i is equal to %i\n", tag_mask, result);
-    fflush(wm_global.log_fp);
     return result;
 }
 
 void wm_clients_arrange() {
     int num_of_clients = wm_clients_count(wm_global.tag_mask);
-    fprintf(wm_global.log_fp, "arrange windows: \n");
 
     wm_client_t *client = wm_global.client_list.head_client;
     if (!(client->tag_mask & wm_global.tag_mask)) {
@@ -290,11 +266,8 @@ void wm_clients_arrange() {
 
         XConfigureWindow(wm_global.display, client->window, 15, &changes);
 
-        fprintf(wm_global.log_fp, "-> master: %d\n", client->window);
-
         for (int i = 0; i < num_of_slaves; i++) {
             client = wm_client_get_next(client);
-            fprintf(wm_global.log_fp, "-> slave%d: %d\n", i, client->window);
 
             changes.x = master_width;
             changes.y = i*slave_height;
@@ -306,7 +279,6 @@ void wm_clients_arrange() {
     }
 
     XFlush(wm_global.display);
-    fflush(wm_global.log_fp);
 }
 
 void wm_clients_map() {
@@ -340,26 +312,20 @@ void wm_run() {
     while (!XNextEvent(wm_global.display, &event) && wm_global.running) {
         switch(event.type) {
             case MapRequest:
-                wm_log("Handle MapRequest\n");
                 wm_on_map_request(&event.xmaprequest);
                 break;
             case KeyPress:
-                wm_log("Handle KeyPress\n");
                 wm_on_key_press(&event.xkey);
                 break;
             case CreateNotify:
-                wm_log("Got unhandled CreateNotify\n");
                 break;
             case MappingNotify:
-                wm_log("Got unhandled MappingNotify\n");
                 break;
             case DestroyNotify:
-                wm_log("Handle DestroyNotify\n");
                 wm_on_destroy_notify(&event.xdestroywindow);
                 break;
             default:
-                fprintf(wm_global.log_fp, "Got not handled request from X-Server: %d\n", event.type);
-                fflush(wm_global.log_fp);
+                logsi("unhandled event", event.type);
         }
     }
 }
@@ -393,8 +359,6 @@ void wm_init() {
     wm_global.screen = DefaultScreen(wm_global.display);
     wm_global.screen_width = DisplayWidth(wm_global.display, wm_global.screen);
     wm_global.screen_height = DisplayHeight(wm_global.display, wm_global.screen);
-    fprintf(wm_global.log_fp, "dimension: %dx%d\n", wm_global.screen_width, wm_global.screen_height);
-    fflush(wm_global.log_fp);
 
     // init root window
     wm_global.root_window = RootWindow(wm_global.display, wm_global.screen);
