@@ -103,9 +103,9 @@ void wm_spawn(char *name) {
     system(buffer);
 }
 
-void wm_set_tag_of_focused_client(int tag){
-    wm_count_clients_in_tag(tag);
-    wm_global.client_list.active_client->tag_mask = tag;
+void wm_set_tag_mask_of_focused_client(int tag_mask){
+    wm_client_count(tag_mask);
+    wm_global.client_list.active_client->tag_mask = tag_mask;
 }
 
 
@@ -247,21 +247,21 @@ void wm_client_send_XEvent(wm_client_t *client, Atom atom) {
     XSendEvent(wm_global.display, client->window, false, NoEventMask, &event);
 }
 
-int wm_count_clients_in_tag(int tag){
+int wm_client_count(int tag_mask){
     int result = 0;
     wm_client_t *client = wm_global.client_list.head_client;
-    if (client->tag_mask & tag){
+    if (client->tag_mask & tag_mask){
         result = 1;
     } else{
         result = 0;
     }
     for (int i=1;i<wm_global.client_list.size;i++){
         client = client->next;
-        if (client->tag_mask & tag){
+        if (client->tag_mask & tag_mask){
             result++;
         }
     }
-    fprintf(wm_global.log_fp, "Number of clients with tag %i is equal to %i\n", tag, result);
+    fprintf(wm_global.log_fp, "Number of clients with tag %i is equal to %i\n", tag_mask, result);
     fflush(wm_global.log_fp);
     return result;
 }
@@ -309,6 +309,7 @@ void wm_init() {
     wm_global.client_list.head_client->prev = NULL;
     wm_global.client_list.head_client->tag_mask = 0;
     wm_global.master_width = MASTER_WIDTH;
+    wm_global.tag_mask = 1;
 
 
     // init logging

@@ -68,7 +68,7 @@ void wm_focus_next();
 void wm_focus_head();
 void wm_kill_active_client();
 void wm_spawn(char *name);
-void wm_set_tag_of_focused_client(int tag);
+void wm_set_tag_mask_of_focused_client(int tag_mask);
 
 // window functions
 void wm_windows_arrange();
@@ -76,7 +76,7 @@ void wm_windows_map();
 void wm_windows_unmap();
 
 // client list
-int wm_count_clients_in_tag(int tag);
+int wm_client_count(int tag_mask);
 void wm_client_add(Window window);
 void wm_client_delete(wm_client_t *client);
 void wm_client_swap(wm_client_t *client1, wm_client_t *client2);
