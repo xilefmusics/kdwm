@@ -16,9 +16,6 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
-    // log
-    logsi("created window", event->window);
-
     // map new window
     XMapWindow(wm_global.display, event->window);
 
@@ -189,18 +186,6 @@ void wm_client_delete(wm_client_t *client) {
 }
 
 void wm_client_swap(wm_client_t *client1, wm_client_t *client2) {
-    logs("preswap");
-    logsi("client1", client1->window);
-    logsi("client2", client2->window);
-    /* logsi("client1->prev", client1->prev->window); */
-    logsi("client1->next", client1->next->window);
-    logsi("client2->prev", client2->prev->window);
-    /* logsi("client2->next", client2->next->window); */
-    /* logsi("client1->prev->next", client1->prev->next->window); */
-    logsi("client1->next->prev", client1->next->prev->window);
-    logsi("client2->prev->next", client2->prev->next->window);
-    /* logsi("client2->next->prev", client2->next->prev->window); */
-
     if (client1 == wm_global.client_list.head_client) {
         wm_global.client_list.head_client = client2;
     }
@@ -219,18 +204,6 @@ void wm_client_swap(wm_client_t *client1, wm_client_t *client2) {
     if (client1->next->window) {
         client1->next->prev = client1;
     }
-
-    logs("postswap");
-    logsi("client1", client1->window);
-    logsi("client2", client2->window);
-    logsi("client1->prev", client1->prev->window);
-    /* logsi("client1->next", client1->next->window); */
-    /* logsi("client2->prev", client2->prev->window); */
-    logsi("client2->next", client2->next->window);
-    logsi("client1->prev->next", client1->prev->next->window);
-    /* logsi("client1->next->prev", client1->next->prev->window); */
-    /* logsi("client2->prev->next", client2->prev->next->window); */
-    logsi("client2->next->prev", client2->next->prev->window);
 }
 
 void wm_client_rehead(wm_client_t *client) {
