@@ -40,9 +40,16 @@ void wm_on_destroy_notify(XDestroyWindowEvent *event) {
     if (client->window == 0) {
         return;
     }
+
+    // set new focus
+    wm_client_t *next = wm_client_get_next(client);
+    wm_client_t *prev = wm_client_get_prev(client);
+    wm_client_find_new_focus(next, prev);
+
     // delete client and rearrange clients
     wm_client_delete(client);
     wm_clients_arrange();
+
 }
 
 void wm_on_key_press(XKeyEvent *event) {
@@ -89,10 +96,7 @@ void wm_kill_active_client() {
     if (!wm_global.client_list.active_client) {
         return;
     }
-    wm_client_t *next = wm_client_get_next(wm_global.client_list.active_client);
-    wm_client_t *prev = wm_client_get_prev(wm_global.client_list.active_client);
     wm_client_send_XEvent(wm_global.client_list.active_client, wm_global.atoms[WM_DELETE_WINDOW]);
-    wm_client_find_new_focus(next, prev);
 }
 
 void wm_spawn(char *name) {
