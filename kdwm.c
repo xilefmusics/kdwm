@@ -33,11 +33,11 @@ void wm_on_map_request(XMapRequestEvent *event) {
 void wm_on_destroy_notify(XDestroyWindowEvent *event) {
     // search for client
     wm_client_t *client = wm_global.client_list.head_client;
-    while (client->window != 0 && client->window != event->window) {
+    while (client->window && client->window != event->window) {
         client = client->next;
     }
     // return if no client found
-    if (client->window == 0) {
+    if (!client->window) {
         return;
     }
 
@@ -225,7 +225,7 @@ wm_client_t *wm_client_get_next(wm_client_t *client) {
             return client;
         }
     }
-    while (client->window != 0) {
+    while (client->window) {
         client = client->next;
         if (client->tag_mask & wm_global.tag_mask) {
             return client;
@@ -235,7 +235,7 @@ wm_client_t *wm_client_get_next(wm_client_t *client) {
 }
 
 wm_client_t *wm_client_get_prev(wm_client_t *client) {
-    while (client != NULL) {
+    while (client) {
         client = client->prev;
         if (!client || client->tag_mask & wm_global.tag_mask) {
             return client;
@@ -290,26 +290,26 @@ void wm_clients_arrange() {
 
 void wm_clients_map() {
     wm_client_t *client = wm_global.client_list.head_client;
-    if (client == NULL) {
+    if (!client) {
         return;
     }
     do {
         if (client->tag_mask & wm_global.tag_mask) {
             XMapWindow(wm_global.display, client->window);
         }
-    } while ((client = client->next) != NULL);
+    } while (client = client->next);
 }
 
 void wm_clients_unmap() {
     wm_client_t *client = wm_global.client_list.head_client;
-    if (client == NULL) {
+    if (!client) {
         return;
     }
     do {
         if (client->tag_mask & wm_global.tag_mask) {
             XUnmapWindow(wm_global.display, client->window);
         }
-    } while ((client = client->next) != NULL);
+    } while (client = client->next);
 }
 
 // basic functions
