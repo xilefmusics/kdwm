@@ -283,19 +283,11 @@ void wm_client_send_XEvent(wm_client_t *client, Atom atom) {
     XSendEvent(wm_global.display, client->window, false, NoEventMask, &event);
 }
 
-int wm_clients_count(int tag_mask){
+int wm_clients_count(){
     int result = 0;
-    wm_client_t *client = wm_global.client_list.head_client;
-    if (client->tag_mask & tag_mask){
-        result = 1;
-    } else{
-        result = 0;
-    }
-    for (int i=1;i<wm_global.client_list.size;i++){
-        client = client->next;
-        if (client->tag_mask & tag_mask){
-            result++;
-        }
+    wm_client_t *client = NULL;
+    while (client = wm_client_get_next(client)) {
+        result++;
     }
     return result;
 }
