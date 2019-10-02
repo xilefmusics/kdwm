@@ -1,5 +1,10 @@
 #include "definitions.h"
 
+#include "layouts/masterstack.c"
+#include "layouts/monocle.c"
+enum {MASTERSTACK, MONOCLE};
+static void (*layouts[])(wm_global_t *wm_global) =  {masterstack, monocle};
+
 static const float MASTER_WIDTH = 0.55;
 
 #define MODKEY Mod4Mask
@@ -14,6 +19,8 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY|ShiftMask, XK_k, wm_client_up, NONE, NULL},
     {MODKEY, XK_q, wm_kill_active_client, NONE, NULL},
     {MODKEY|ShiftMask, XK_Return, wm_rehead, NONE, NULL},
+    {MODKEY, XK_t, wm_change_layout, INTEGER, "0"},
+    {MODKEY, XK_m, wm_change_layout, INTEGER, "1"},
     // switch tag
     {MODKEY, XK_1, wm_retag, INTEGER, "1"},
     {MODKEY, XK_2, wm_retag, INTEGER, "2"},

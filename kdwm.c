@@ -81,6 +81,7 @@ void wm_focus_next() {
     }
     wm_global.client_list.active_client = client;
     wm_client_focus(client);
+    XRaiseWindow(wm_global.display, client->window);
 }
 
 void wm_focus_prev() {
@@ -90,6 +91,7 @@ void wm_focus_prev() {
     }
     wm_global.client_list.active_client = client;
     wm_client_focus(client);
+    XRaiseWindow(wm_global.display, client->window);
 }
 
 void wm_kill_active_client() {
@@ -162,6 +164,11 @@ void wm_client_down() {
         wm_client_swap(wm_global.client_list.active_client, next);
         wm_clients_arrange();
     }
+}
+
+void wm_change_layout(int layout) {
+    wm_global.current_layout = layout;
+    wm_clients_arrange();
 }
 
 
@@ -288,53 +295,7 @@ int wm_clients_count(int tag_mask){
 }
 
 void wm_clients_arrange() {
-    int num_of_clients = wm_clients_count(wm_global.tag_mask);
-
-    wm_client_t *client = wm_global.client_list.head_client;
-    if (!(client->tag_mask & wm_global.tag_mask)) {
-        client = wm_client_get_next(client);
-    }
-
-    if (num_of_clients == 0) {
-
-    } else if (num_of_clients == 1) {
-        XWindowChanges changes;
-        changes.x = 0;
-        changes.y = 0;
-        changes.width = wm_global.screen_width;
-        changes.height = wm_global.screen_height;
-        XConfigureWindow(wm_global.display, client->window, 15, &changes);
-    } else {
-        int num_of_slaves = num_of_clients - 1;
-
-        int slave_height = wm_global.screen_height / num_of_slaves;
-        int master_height = wm_global.screen_height;
-
-        int master_width = (int) wm_global.screen_width * MASTER_WIDTH;
-        int slave_width = wm_global.screen_width - master_width;
-
-        XWindowChanges changes;
-
-        changes.x = 0;
-        changes.y = 0;
-        changes.width = master_width;
-        changes.height = master_height;
-
-        XConfigureWindow(wm_global.display, client->window, 15, &changes);
-
-        for (int i = 0; i < num_of_slaves; i++) {
-            client = wm_client_get_next(client);
-
-            changes.x = master_width;
-            changes.y = i*slave_height;
-            changes.width = slave_width;
-            changes.height = slave_height;
-
-            XConfigureWindow(wm_global.display, client->window, 15, &changes);
-        }
-    }
-
-    XFlush(wm_global.display);
+    (*layouts[wm_global.current_layout])(&wm_global);
 }
 
 void wm_clients_map() {
@@ -399,6 +360,7 @@ void wm_init() {
     wm_global.client_list.head_client->tag_mask = 0;
     wm_global.master_width = MASTER_WIDTH;
     wm_global.tag_mask = 1;
+    wm_global.current_layout = MASTERSTACK;
 
 
     // init logging

@@ -41,6 +41,7 @@ typedef struct wm_global {
     float master_width;
     Atom atoms[2];
     wm_client_list_t client_list;
+    int current_layout;
 } wm_global_t;
 
 typedef struct wm_keybinding {
@@ -74,6 +75,7 @@ void wm_retag(int tag_mask);
 void wm_rehead();
 void wm_client_up();
 void wm_client_down();
+void wm_change_layout(int layout);
 
 // client list
 void wm_client_add(Window window);
