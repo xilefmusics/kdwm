@@ -12,6 +12,8 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
     exit(EXIT_FAILURE);
 }
 
+
+
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
     // map new window
@@ -31,7 +33,7 @@ void wm_on_map_request(XMapRequestEvent *event) {
 void wm_on_destroy_notify(XDestroyWindowEvent *event) {
     // search for client
     wm_client_t *client = wm_global.client_list.head_client;
-    while (client && client->window != event->window) {
+    while (client->window != 0 && client->window != event->window) {
         client = client->next;
     }
     // return if no client found
@@ -47,6 +49,7 @@ void wm_on_destroy_notify(XDestroyWindowEvent *event) {
     // delete client and rearrange clients
     wm_client_delete(client);
     wm_clients_arrange();
+
 }
 
 void wm_on_key_press(XKeyEvent *event) {
@@ -69,13 +72,26 @@ void wm_on_key_press(XKeyEvent *event) {
     }
 }
 
+
 // user controll
 void wm_focus_next() {
-    wm_client_focus(wm_client_get_next(wm_global.client_list.active_client));
+    wm_client_t * client = wm_client_get_next(wm_global.client_list.active_client);
+    if (client == NULL) {
+        return;
+    }
+    wm_global.client_list.active_client = client;
+    wm_client_focus(client);
+    XRaiseWindow(wm_global.display, client->window);
 }
 
 void wm_focus_prev() {
-    wm_client_focus(wm_client_get_prev(wm_global.client_list.active_client));
+    wm_client_t *client = wm_client_get_prev(wm_global.client_list.active_client);
+    if (client == NULL) {
+        return;
+    }
+    wm_global.client_list.active_client = client;
+    wm_client_focus(client);
+    XRaiseWindow(wm_global.display, client->window);
 }
 
 void wm_kill_active_client() {
@@ -103,6 +119,7 @@ void wm_set_tag_mask_of_focused_client(int tag_mask){
         wm_clients_arrange();
     }
 }
+
 
 void wm_add_tag_to_tag_mask(int tag) {
     wm_retag(wm_global.tag_mask | tag);
@@ -154,26 +171,21 @@ void wm_change_layout(int layout) {
     wm_clients_arrange();
 }
 
+
 // client list
 void wm_client_add(Window window) {
     wm_client_t *new = malloc(sizeof(wm_client_t));
     new->window = window;
     new->prev = NULL;
     new->tag_mask = wm_global.tag_mask;
-    if (wm_global.client_list.size > 0) {
-        wm_global.client_list.head_client->prev = new;
-        new->next = wm_global.client_list.head_client;
-    } else {
-        new->next = NULL;
-    }
+    wm_global.client_list.head_client->prev = new;
+    new->next = wm_global.client_list.head_client;
     wm_global.client_list.head_client = new;
     wm_global.client_list.size++;
 }
 
 void wm_client_delete(wm_client_t *client) {
-    if (client->next) {
-        client->next->prev = client->prev;
-    }
+    client->next->prev = client->prev;
     if (client->prev) {
         client->prev->next = client->next;
     }
@@ -200,7 +212,7 @@ void wm_client_swap(wm_client_t *client1, wm_client_t *client2) {
     if (client2->prev) {
         client2->prev->next = client2;
     }
-    if (client1->next) {
+    if (client1->next->window) {
         client1->next->prev = client1;
     }
 }
@@ -221,13 +233,13 @@ void wm_client_rehead(wm_client_t *client) {
 wm_client_t *wm_client_get_next(wm_client_t *client) {
     if (!client) {
         client = wm_global.client_list.head_client;
-        if (!client || client->tag_mask & wm_global.tag_mask) {
+        if (client->tag_mask & wm_global.tag_mask) {
             return client;
         }
     }
-    while (client) {
+    while (client->window != 0) {
         client = client->next;
-        if (!client || client->tag_mask & wm_global.tag_mask) {
+        if (client->tag_mask & wm_global.tag_mask) {
             return client;
         }
     }
@@ -235,7 +247,7 @@ wm_client_t *wm_client_get_next(wm_client_t *client) {
 }
 
 wm_client_t *wm_client_get_prev(wm_client_t *client) {
-    while (client) {
+    while (client != NULL) {
         client = client->prev;
         if (!client || client->tag_mask & wm_global.tag_mask) {
             return client;
@@ -245,11 +257,8 @@ wm_client_t *wm_client_get_prev(wm_client_t *client) {
 }
 
 void wm_client_focus(wm_client_t *client) {
-    if (client) {
-        wm_global.client_list.active_client = client;
-        XSetInputFocus(wm_global.display, client->window, RevertToPointerRoot, CurrentTime);
-        XRaiseWindow(wm_global.display, client->window);
-    }
+    wm_global.client_list.active_client = client;
+    XSetInputFocus(wm_global.display, client->window, RevertToPointerRoot, CurrentTime);
 }
 
 void wm_client_find_new_focus(wm_client_t *prev, wm_client_t *next) {
@@ -262,6 +271,7 @@ void wm_client_find_new_focus(wm_client_t *prev, wm_client_t *next) {
     }
 }
 
+
 void wm_client_send_XEvent(wm_client_t *client, Atom atom) {
     XEvent event;
     event.type = ClientMessage;
@@ -273,11 +283,19 @@ void wm_client_send_XEvent(wm_client_t *client, Atom atom) {
     XSendEvent(wm_global.display, client->window, false, NoEventMask, &event);
 }
 
-int wm_clients_count(){
+int wm_clients_count(int tag_mask){
     int result = 0;
-    wm_client_t *client = NULL;
-    while (client = wm_client_get_next(client)) {
-        result++;
+    wm_client_t *client = wm_global.client_list.head_client;
+    if (client->tag_mask & tag_mask){
+        result = 1;
+    } else{
+        result = 0;
+    }
+    for (int i=1;i<wm_global.client_list.size;i++){
+        client = client->next;
+        if (client->tag_mask & tag_mask){
+            result++;
+        }
     }
     return result;
 }
@@ -341,6 +359,11 @@ void wm_init() {
     wm_global.tag_mask = 1;
     wm_global.client_list.size = 0;
     wm_global.client_list.active_client = NULL;
+    wm_global.client_list.head_client = malloc(sizeof(wm_client_t));
+    wm_global.client_list.head_client->window = 0;
+    wm_global.client_list.head_client->next = NULL;
+    wm_global.client_list.head_client->prev = NULL;
+    wm_global.client_list.head_client->tag_mask = 0;
     wm_global.master_width = MASTER_WIDTH;
     wm_global.tag_mask = 1;
     wm_global.current_layout = MASTERSTACK;
@@ -379,6 +402,8 @@ void wm_init() {
     bool client_added = false;
     if (XQueryTree(wm_global.display, wm_global.root_window, &root_return, &parent_return, &children_return, &nchildren_return)) {
         for (int i = 0; i < nchildren_return; i++) {
+            fprintf(wm_global.log_fp, "Add client\n");
+            fflush(wm_global.log_fp);
             wm_client_add(children_return[i]);
             client_added = true;
         }
@@ -410,6 +435,8 @@ void wm_tini() {
     // close logging
     fclose(wm_global.log_fp);
 }
+
+
 
 // main function
 int main(int argc, char *argv[]) {

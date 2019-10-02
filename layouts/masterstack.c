@@ -1,5 +1,5 @@
 void masterstack(wm_global_t * global) {
-    int num_of_clients = wm_clients_count();
+    int num_of_clients = wm_clients_count(global->tag_mask);
 
     wm_client_t *client = wm_client_get_next(NULL);
 
