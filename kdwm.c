@@ -231,6 +231,12 @@ void wm_client_rehead(wm_client_t *client) {
 }
 
 wm_client_t *wm_client_get_next(wm_client_t *client) {
+    if (!client) {
+        client = wm_global.client_list.head_client;
+        if (client->tag_mask & wm_global.tag_mask) {
+            return client;
+        }
+    }
     while (client->window != 0) {
         client = client->next;
         if (client->tag_mask & wm_global.tag_mask) {

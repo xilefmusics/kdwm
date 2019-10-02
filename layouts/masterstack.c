@@ -1,13 +1,10 @@
 void masterstack(wm_global_t * global) {
     int num_of_clients = wm_clients_count(global->tag_mask);
 
-    wm_client_t *client = global->client_list.head_client;
-    if (!(client->tag_mask & global->tag_mask)) {
-        client = wm_client_get_next(client);
-    }
+    wm_client_t *client = wm_client_get_next(NULL);
 
     if (num_of_clients == 0) {
-
+        return;
     } else if (num_of_clients == 1) {
         XWindowChanges changes;
         changes.x = 0;
