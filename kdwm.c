@@ -29,10 +29,7 @@ void wm_on_destroy_notify(XDestroyWindowEvent *event) {
         return;
     }
 
-    wm_client_t *next = wm_client_get_next(client);
-    wm_client_t *prev = wm_client_get_prev(client);
-    wm_client_find_new_focus(next, prev);
-
+    wm_client_find_new_focus(client);
     wm_client_delete(client);
     wm_clients_arrange();
 
@@ -89,7 +86,7 @@ void wm_set_tag_mask_of_focused_client(int tag_mask){
 
     if (!(tag_mask & wm_global.tag_mask)) {
         XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
-        wm_client_find_new_focus(wm_client_get_next(wm_global.client_list.active_client), wm_client_get_prev(wm_global.client_list.active_client));
+        wm_client_find_new_focus(wm_global.client_list.active_client);
         wm_clients_arrange();
     }
 }
@@ -239,7 +236,10 @@ void wm_client_focus(wm_client_t *client) {
 
 }
 
-void wm_client_find_new_focus(wm_client_t *prev, wm_client_t *next) {
+void wm_client_find_new_focus(wm_client_t *client) {
+    wm_client_t *next = wm_client_get_next(client);
+    wm_client_t *prev = wm_client_get_prev(client);
+
     if (next){
         wm_client_focus(next);
     } else if (prev) {
