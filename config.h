@@ -14,17 +14,22 @@ static const int MASTER_WIDTH = 50;
 #define MODKEY Mod4Mask
 
 static wm_keybinding_t wm_keybindings[] = {
+    // stop
     {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
+    // spawn
     {MODKEY, XK_Return, wm_spawn, STRING, "st"},
     {MODKEY, XK_r, wm_spawn, STRING, "dmenu_run"},
+    // clients
     {MODKEY, XK_j, wm_focus_next, NONE, NULL},
     {MODKEY, XK_k, wm_focus_prev, NONE, NULL},
     {MODKEY|ShiftMask, XK_j, wm_client_down, NONE, NULL},
     {MODKEY|ShiftMask, XK_k, wm_client_up, NONE, NULL},
-    {MODKEY, XK_q, wm_kill_active_client, NONE, NULL},
     {MODKEY|ShiftMask, XK_Return, wm_rehead, NONE, NULL},
+    {MODKEY, XK_q, wm_kill_active_client, NONE, NULL},
+    // layouts
     {MODKEY, XK_t, wm_change_layout, INTEGER, "0"},
     {MODKEY, XK_m, wm_change_layout, INTEGER, "1"},
+    // change master width
     {MODKEY, XK_h, wm_change_master_width, INTEGER, "-5"},
     {MODKEY, XK_l, wm_change_master_width, INTEGER, "5"},
     {MODKEY, XK_z, wm_change_master_width, INTEGER, "0"},

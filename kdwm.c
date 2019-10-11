@@ -6,8 +6,6 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
     exit(EXIT_FAILURE);
 }
 
-
-
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
     wm_client_manage(event->window);
@@ -26,7 +24,6 @@ void wm_on_destroy_notify(XDestroyWindowEvent *event) {
 
 void wm_on_key_press(XKeyEvent *event) {
     int keysym = XKeycodeToKeysym(wm_global.display, event->keycode, 0);
-
     for (int i = 0; i < LENGTH(wm_keybindings); ++i) {
         if (wm_keybindings[i].keysym == keysym && wm_keybindings[i].mod == event->state) {
             switch (wm_keybindings[i].arg_type) {
@@ -43,7 +40,6 @@ void wm_on_key_press(XKeyEvent *event) {
         }
     }
 }
-
 
 // user controll
 void wm_focus_next() {
@@ -69,17 +65,14 @@ void wm_spawn(char *name) {
 }
 
 void wm_set_tag_mask_of_focused_client(int tag_mask){
-
     wm_clients_count(tag_mask);
     wm_global.client_list.active_client->tag_mask = tag_mask;
-
     if (!(tag_mask & wm_global.tag_mask)) {
         XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
         wm_client_find_new_focus(wm_global.client_list.active_client);
         wm_clients_arrange();
     }
 }
-
 
 void wm_add_tag_to_tag_mask(int tag) {
     wm_retag(wm_global.tag_mask | tag);
@@ -93,7 +86,6 @@ void wm_retag(int tag_mask) {
     if (tag_mask == wm_global.tag_mask) {
         return;
     }
-
     wm_clients_unmap();
     wm_global.tag_mask = tag_mask;
     if (wm_global.client_list.head_client->tag_mask & tag_mask) {
@@ -144,8 +136,7 @@ void wm_change_master_width(int percent) {
     wm_clients_arrange();
 }
 
-
-// client list
+// client
 void wm_client_add(Window window) {
     wm_client_t *new = malloc(sizeof(wm_client_t));
     new->window = window;
@@ -235,7 +226,6 @@ void wm_client_focus(wm_client_t *client) {
         XSetInputFocus(wm_global.display, client->window, RevertToPointerRoot, CurrentTime);
         XRaiseWindow(wm_global.display, client->window);
     }
-
 }
 
 void wm_client_find_new_focus(wm_client_t *client) {
@@ -250,7 +240,6 @@ void wm_client_find_new_focus(wm_client_t *client) {
         wm_global.client_list.active_client = NULL;
     }
 }
-
 
 void wm_client_send_XEvent(wm_client_t *client, Atom atom) {
     XEvent event;
@@ -430,11 +419,8 @@ void wm_stop() {
 }
 
 void wm_tini() {
-    // close display (connections to X-Server)
     XCloseDisplay(wm_global.display);
 }
-
-
 
 // main function
 int main(int argc, char *argv[]) {
