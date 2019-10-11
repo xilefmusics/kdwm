@@ -6,12 +6,7 @@ void masterstack(wm_global_t * global) {
     if (num_of_clients == 0) {
         return;
     } else if (num_of_clients == 1) {
-        XWindowChanges changes;
-        changes.x = 0;
-        changes.y = 0;
-        changes.width = global->screen_width;
-        changes.height = global->screen_height;
-        XConfigureWindow(global->display, client->window, 15, &changes);
+        wm_client_draw(client, 0, 0, global->screen_width, global->screen_height);
     } else {
         int num_of_slaves = num_of_clients - 1;
 
@@ -21,24 +16,11 @@ void masterstack(wm_global_t * global) {
         int master_width = (int) global->screen_width * global->master_width;
         int slave_width = global->screen_width - master_width;
 
-        XWindowChanges changes;
-
-        changes.x = 0;
-        changes.y = 0;
-        changes.width = master_width;
-        changes.height = master_height;
-
-        XConfigureWindow(global->display, client->window, 15, &changes);
+        wm_client_draw(client, 0, 0, master_width, master_height);
 
         for (int i = 0; i < num_of_slaves; i++) {
             client = wm_client_get_next(client);
-
-            changes.x = master_width;
-            changes.y = i*slave_height;
-            changes.width = slave_width;
-            changes.height = slave_height;
-
-            XConfigureWindow(global->display, client->window, 15, &changes);
+            wm_client_draw(client, master_width, i*slave_height, slave_width, slave_height);
         }
     }
 

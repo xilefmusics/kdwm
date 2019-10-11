@@ -91,6 +91,7 @@ int wm_clients_count();
 void wm_clients_arrange();
 void wm_clients_map();
 void wm_clients_unmap();
+void wm_client_draw(wm_client_t *client, int x, int y, int w, int h);
 
 // basic functions
 void wm_run();

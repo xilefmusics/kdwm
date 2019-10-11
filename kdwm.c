@@ -312,6 +312,15 @@ void wm_clients_unmap() {
     } while (client = client->next);
 }
 
+void wm_client_draw(wm_client_t *client, int x, int y, int w, int h) {
+    XWindowChanges changes;
+    changes.x = x;
+    changes.y = y;
+    changes.width = w;
+    changes.height = h;
+    XConfigureWindow(wm_global.display, client->window, 15, &changes);
+}
+
 // basic functions
 void wm_run() {
     XEvent event;
