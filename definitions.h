@@ -42,6 +42,7 @@ typedef struct wm_global {
     wm_client_list_t client_list;
     int current_layout;
 } wm_global_t;
+static wm_global_t wm_global;
 
 typedef struct wm_keybinding {
     int mod;

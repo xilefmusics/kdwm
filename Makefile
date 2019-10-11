@@ -1,8 +1,6 @@
-force: clean all
+all: clean kdwm
 
-all: kdwm
-
-kdwm: kdwm.c config.h definitions.h
+kdwm:
 	cc -lX11 kdwm.c -o kdwm
 
 clean:

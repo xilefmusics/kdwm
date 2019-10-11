@@ -7,7 +7,7 @@
 #include "layouts/masterstack.c"
 #include "layouts/monocle.c"
 enum {MASTERSTACK, MONOCLE};
-static void (*layouts[])(wm_global_t *wm_global) =  {masterstack, monocle};
+static void (*layouts[])() =  {masterstack, monocle};
 
 static const int MASTER_WIDTH = 50;
 

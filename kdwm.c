@@ -1,8 +1,5 @@
 #include "config.h"
 
-// stores to global configuration of the windowmanager
-static wm_global_t wm_global;
-
 // error handler
 int wm_err_detect_other(Display *display, XErrorEvent *event) {
     fprintf(stderr, "ERROR: another windowmanager is already started\n");
@@ -281,7 +278,7 @@ int wm_clients_count(){
 }
 
 void wm_clients_arrange() {
-    (*layouts[wm_global.current_layout])(&wm_global);
+    (*layouts[wm_global.current_layout])();
 }
 
 void wm_clients_map() {
