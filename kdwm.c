@@ -10,23 +10,18 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
-    XMapWindow(wm_global.display, event->window);
-    wm_client_add(event->window);
-    wm_client_focus(wm_global.client_list.head_client);
-    wm_global.client_list.active_client->tag_mask = wm_global.tag_mask;
-    wm_clients_arrange();
+    wm_client_manage(event->window);
+}
+
+void wm_on_unmap_notify(XUnmapEvent *event) {
+    if (!event->send_event) {
+        return;
+    }
+    wm_client_unmanage(event->window);
 }
 
 void wm_on_destroy_notify(XDestroyWindowEvent *event) {
-    wm_client_t *client = wm_client_find(event->window);
-    if (!client) {
-        return;
-    }
-
-    wm_client_find_new_focus(client);
-    wm_client_delete(client);
-    wm_clients_arrange();
-
+    wm_client_unmanage(event->window);
 }
 
 void wm_on_key_press(XKeyEvent *event) {
@@ -314,6 +309,24 @@ void wm_client_draw(wm_client_t *client, int x, int y, int w, int h) {
     XConfigureWindow(wm_global.display, client->window, 15, &changes);
 }
 
+void wm_client_manage(Window window) {
+    XMapWindow(wm_global.display, window);
+    wm_client_add(window);
+    wm_client_focus(wm_global.client_list.head_client);
+    wm_global.client_list.active_client->tag_mask = wm_global.tag_mask;
+    wm_clients_arrange();
+}
+
+void wm_client_unmanage(Window window) {
+    wm_client_t *client = wm_client_find(window);
+    if (!client) {
+        return;
+    }
+    wm_client_find_new_focus(client);
+    wm_client_delete(client);
+    wm_clients_arrange();
+}
+
 wm_client_t *wm_client_find(Window window) {
     wm_client_t *client = wm_global.client_list.head_client;
     while (client->window && client->window != window) {
@@ -334,15 +347,14 @@ void wm_run() {
             case MapRequest:
                 wm_on_map_request(&event.xmaprequest);
                 break;
-            case KeyPress:
-                wm_on_key_press(&event.xkey);
-                break;
-            case CreateNotify:
-                break;
-            case MappingNotify:
+            case UnmapNotify:
+                wm_on_unmap_notify(&event.xunmap);
                 break;
             case DestroyNotify:
                 wm_on_destroy_notify(&event.xdestroywindow);
+                break;
+            case KeyPress:
+                wm_on_key_press(&event.xkey);
                 break;
             default:
                 logsi("unhandled event", event.type);

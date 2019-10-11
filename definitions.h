@@ -57,6 +57,7 @@ int wm_err_detect_other(Display * display, XErrorEvent *event);
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event);
+void wm_on_unmap_notify(XUnmapEvent *event);
 void wm_on_destroy_notify(XDestroyWindowEvent *event);
 void wm_on_key_press(XKeyEvent *event);
 
@@ -91,6 +92,8 @@ void wm_clients_map();
 void wm_clients_unmap();
 void wm_client_draw(wm_client_t *client, int x, int y, int w, int h);
 wm_client_t *wm_client_find(Window window);
+void wm_client_manage(Window window);
+void wm_client_unmanage(Window window);
 
 // basic functions
 void wm_run();
