@@ -16,37 +16,23 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
-    // map new window
     XMapWindow(wm_global.display, event->window);
-
-    // add client and focus it
     wm_client_add(event->window);
     wm_client_focus(wm_global.client_list.head_client);
-
-    // set tag_mask of client
     wm_global.client_list.active_client->tag_mask = wm_global.tag_mask;
-
-    // arange windows
     wm_clients_arrange();
 }
 
 void wm_on_destroy_notify(XDestroyWindowEvent *event) {
-    // search for client
-    wm_client_t *client = wm_global.client_list.head_client;
-    while (client->window && client->window != event->window) {
-        client = client->next;
-    }
-    // return if no client found
-    if (!client->window) {
+    wm_client_t *client = wm_client_find(event->window);
+    if (!client) {
         return;
     }
 
-    // set new focus
     wm_client_t *next = wm_client_get_next(client);
     wm_client_t *prev = wm_client_get_prev(client);
     wm_client_find_new_focus(next, prev);
 
-    // delete client and rearrange clients
     wm_client_delete(client);
     wm_clients_arrange();
 
@@ -319,6 +305,17 @@ void wm_client_draw(wm_client_t *client, int x, int y, int w, int h) {
     changes.width = w;
     changes.height = h;
     XConfigureWindow(wm_global.display, client->window, 15, &changes);
+}
+
+wm_client_t *wm_client_find(Window window) {
+    wm_client_t *client = wm_global.client_list.head_client;
+    while (client->window && client->window != window) {
+        client = client->next;
+    }
+    if (!client->window) {
+        return NULL;
+    }
+    return client;
 }
 
 // basic functions
