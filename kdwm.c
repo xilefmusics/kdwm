@@ -139,6 +139,19 @@ void wm_change_layout(int layout) {
     wm_clients_arrange();
 }
 
+void wm_change_master_width(int percent) {
+    if (percent == 0) {
+        wm_global.master_width = MASTER_WIDTH;
+    }
+    wm_global.master_width = wm_global.master_width + percent;
+    if (wm_global.master_width < 5) {
+        wm_global.master_width = 5;
+    } else if (wm_global.master_width > 95) {
+        wm_global.master_width = 95;
+    }
+    wm_clients_arrange();
+}
+
 
 // client list
 void wm_client_add(Window window) {

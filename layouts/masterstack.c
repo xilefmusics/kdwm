@@ -13,7 +13,7 @@ void masterstack(wm_global_t * global) {
         int slave_height = global->screen_height / num_of_slaves;
         int master_height = global->screen_height;
 
-        int master_width = (int) global->screen_width * global->master_width;
+        int master_width = (int) (((float)global->screen_width) * ((float)global->master_width)/100);
         int slave_width = global->screen_width - master_width;
 
         wm_client_draw(client, 0, 0, master_width, master_height);

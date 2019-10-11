@@ -1,3 +1,5 @@
+force: clean all
+
 all: kdwm
 
 kdwm: kdwm.c config.h definitions.h

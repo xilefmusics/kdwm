@@ -11,7 +11,7 @@
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 
 // definitions
-typedef enum {NONE, STRING, INTEGER, DOUBLE} wm_arg_types;
+typedef enum {NONE, STRING, INTEGER} wm_arg_types;
 
 enum {WM_PROTOCOLS, WM_DELETE_WINDOW};
 
@@ -37,7 +37,7 @@ typedef struct wm_global {
     int screen_height;
     bool running;
     int tag_mask;
-    float master_width;
+    int master_width;
     Atom atoms[2];
     wm_client_list_t client_list;
     int current_layout;
@@ -72,6 +72,7 @@ void wm_rehead();
 void wm_client_up();
 void wm_client_down();
 void wm_change_layout(int layout);
+void wm_change_master_width(int percent);
 
 // client list
 void wm_client_add(Window window);
