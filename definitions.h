@@ -36,7 +36,6 @@ typedef struct wm_global {
     int screen_width;
     int screen_height;
     bool running;
-    FILE *log_fp;
     int tag_mask;
     float master_width;
     Atom atoms[2];
@@ -51,9 +50,6 @@ typedef struct wm_keybinding {
     wm_arg_types arg_type;
     char *arg;
 } wm_keybinding_t;
-
-// developement and debugging features
-void wm_log(char *logmessage);
 
 // error handler
 int wm_err_detect_other(Display * display, XErrorEvent *event);

@@ -3,9 +3,6 @@
 // stores to global configuration of the windowmanager
 static wm_global_t wm_global;
 
-// logging
-#include "log.c"
-
 // error handler
 int wm_err_detect_other(Display *display, XErrorEvent *event) {
     fprintf(stderr, "ERROR: another windowmanager is already started\n");
@@ -344,6 +341,8 @@ void wm_run() {
 }
 
 void wm_init() {
+    logs("\nSTART");
+
     // initialize global variables
     wm_global.running = false;
     wm_global.tag_mask = 1;
@@ -357,14 +356,6 @@ void wm_init() {
     wm_global.master_width = MASTER_WIDTH;
     wm_global.tag_mask = 1;
     wm_global.current_layout = MASTERSTACK;
-
-
-    // init logging
-    char path_buffer[256];
-    char *homedir = getenv("HOME");
-    strcpy(path_buffer, homedir);
-    strcat(path_buffer, "/.kdwm/log.txt");
-    wm_global.log_fp = fopen(path_buffer, "w");
 
     // open display (connection to X-Server)
     wm_global.display = XOpenDisplay(NULL);
@@ -419,9 +410,6 @@ void wm_stop() {
 void wm_tini() {
     // close display (connections to X-Server)
     XCloseDisplay(wm_global.display);
-
-    // close logging
-    fclose(wm_global.log_fp);
 }
 
 

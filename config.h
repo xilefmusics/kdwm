@@ -1,5 +1,9 @@
 #include "definitions.h"
 
+// MODULES
+#include "modules/logger.c"
+
+// LAYOUTS
 #include "layouts/masterstack.c"
 #include "layouts/monocle.c"
 enum {MASTERSTACK, MONOCLE};
