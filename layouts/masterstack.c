@@ -4,7 +4,10 @@ void masterstack() {
     if (num_of_clients == 0) {
         return;
     } else if (num_of_clients == 1) {
+        int temp_border_width = wm_global.border_width;
+        wm_global.border_width = 0;
         wm_client_draw(client, 0, 0, wm_global.screen_width, wm_global.screen_height);
+        wm_global.border_width = temp_border_width;
     } else {
         int num_of_slaves = num_of_clients - 1;
         int slave_height = wm_global.screen_height / num_of_slaves;
