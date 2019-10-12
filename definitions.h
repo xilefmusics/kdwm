@@ -33,14 +33,15 @@ typedef struct wm_global {
     Display *display;
     Window root_window;
     int screen;
-    int screen_width;
-    int screen_height;
+    int screen_width, screen_height;
     bool running;
     int tag_mask;
     int master_width;
+    int border_width;
     Atom atoms[2];
     wm_client_list_t client_list;
     int current_layout;
+    XColor border_color_active, border_color_passive;
 } wm_global_t;
 static wm_global_t wm_global;
 
@@ -94,6 +95,7 @@ void wm_client_draw(wm_client_t *client, int x, int y, int w, int h);
 wm_client_t *wm_client_find(Window window);
 void wm_client_manage(Window window);
 void wm_client_unmanage(Window window);
+void wm_client_set_border_color(wm_client_t *client);
 
 // basic functions
 void wm_run();

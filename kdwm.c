@@ -43,11 +43,17 @@ void wm_on_key_press(XKeyEvent *event) {
 
 // user controll
 void wm_focus_next() {
+    wm_client_t *client = wm_global.client_list.active_client;
     wm_client_focus(wm_client_get_next(wm_global.client_list.active_client));
+    wm_client_set_border_color(client);
+    wm_client_set_border_color(wm_global.client_list.active_client);
 }
 
 void wm_focus_prev() {
+    wm_client_t *client = wm_global.client_list.active_client;
     wm_client_focus(wm_client_get_prev(wm_global.client_list.active_client));
+    wm_client_set_border_color(client);
+    wm_client_set_border_color(wm_global.client_list.active_client);
 }
 
 void wm_kill_active_client() {
@@ -293,9 +299,11 @@ void wm_client_draw(wm_client_t *client, int x, int y, int w, int h) {
     XWindowChanges changes;
     changes.x = x;
     changes.y = y;
-    changes.width = w;
-    changes.height = h;
-    XConfigureWindow(wm_global.display, client->window, 15, &changes);
+    changes.width = w-2*wm_global.border_width;
+    changes.height = h-2*wm_global.border_width;
+    changes.border_width = wm_global.border_width;
+    XConfigureWindow(wm_global.display, client->window, 31, &changes);
+    wm_client_set_border_color(client);
 }
 
 void wm_client_manage(Window window) {
@@ -325,6 +333,14 @@ wm_client_t *wm_client_find(Window window) {
         return NULL;
     }
     return client;
+}
+
+void wm_client_set_border_color(wm_client_t *client) {
+    if (client == wm_global.client_list.active_client) {
+        XSetWindowBorder(wm_global.display, client->window, wm_global.border_color_active.pixel);
+    } else {
+        XSetWindowBorder(wm_global.display, client->window, wm_global.border_color_passive.pixel);
+    }
 }
 
 // basic functions
@@ -365,6 +381,7 @@ void wm_init() {
     wm_global.client_list.head_client->prev = NULL;
     wm_global.client_list.head_client->tag_mask = 0;
     wm_global.master_width = MASTER_WIDTH;
+    wm_global.border_width = BORDER_WIDTH;
     wm_global.tag_mask = 1;
     wm_global.current_layout = MASTERSTACK;
 
@@ -406,6 +423,11 @@ void wm_init() {
     // get atoms
     wm_global.atoms[WM_PROTOCOLS] = XInternAtom(wm_global.display, "WM_PROTOCOLS", false);
 	wm_global.atoms[WM_DELETE_WINDOW] = XInternAtom(wm_global.display, "WM_DELETE_WINDOW", false);
+
+    // init colors
+    Colormap colormap = XCreateColormap(wm_global.display, wm_global.root_window, XDefaultVisual(wm_global.display, wm_global.screen), AllocNone);
+    XAllocNamedColor(wm_global.display, colormap, BORDER_COLOR_ACTIVE, &wm_global.border_color_active, &wm_global.border_color_active);
+    XAllocNamedColor(wm_global.display, colormap, BORDER_COLOR_PASSIVE, &wm_global.border_color_passive, &wm_global.border_color_passive);
 }
 
 void wm_start() {

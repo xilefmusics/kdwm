@@ -10,6 +10,9 @@ enum {MASTERSTACK, MONOCLE};
 static void (*layouts[])() =  {masterstack, monocle};
 
 static const int MASTER_WIDTH = 50;
+static const int BORDER_WIDTH = 1;
+static const char* BORDER_COLOR_ACTIVE = "#61afef";
+static const char* BORDER_COLOR_PASSIVE = "#21252b";
 
 #define MODKEY Mod4Mask
 
