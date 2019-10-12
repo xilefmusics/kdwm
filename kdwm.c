@@ -94,7 +94,7 @@ void wm_retag(int tag_mask) {
     }
     wm_clients_unmap();
     wm_global.tag_mask = tag_mask;
-    if (wm_global.client_list.head_client->tag_mask & tag_mask) {
+    if (wm_global.client_list.head_client && wm_global.client_list.head_client->tag_mask & tag_mask) {
         wm_global.client_list.active_client = wm_global.client_list.head_client;
     } else {
         wm_global.client_list.active_client = wm_client_get_next(wm_global.client_list.head_client);
@@ -148,14 +148,18 @@ void wm_client_add(Window window) {
     new->window = window;
     new->prev = NULL;
     new->tag_mask = wm_global.tag_mask;
-    wm_global.client_list.head_client->prev = new;
+    if (wm_global.client_list.head_client) {
+        wm_global.client_list.head_client->prev = new;
+    }
     new->next = wm_global.client_list.head_client;
     wm_global.client_list.head_client = new;
     wm_global.client_list.size++;
 }
 
 void wm_client_delete(wm_client_t *client) {
-    client->next->prev = client->prev;
+    if (client->next) {
+        client->next->prev = client->prev;
+    }
     if (client->prev) {
         client->prev->next = client->next;
     }
@@ -182,7 +186,7 @@ void wm_client_swap(wm_client_t *client1, wm_client_t *client2) {
     if (client2->prev) {
         client2->prev->next = client2;
     }
-    if (client1->next->window) {
+    if (client1->next) {
         client1->next->prev = client1;
     }
 }
@@ -191,7 +195,9 @@ void wm_client_rehead(wm_client_t *client) {
     if (client == wm_global.client_list.head_client) {
         return;
     }
-    client->next->prev = client->prev;
+    if (client->next) {
+        client->next->prev = client->prev;
+    }
     if (client->prev) {
         client->prev->next = client->next;
     }
@@ -203,13 +209,13 @@ void wm_client_rehead(wm_client_t *client) {
 wm_client_t *wm_client_get_next(wm_client_t *client) {
     if (!client) {
         client = wm_global.client_list.head_client;
-        if (client->tag_mask & wm_global.tag_mask) {
+        if (client && client->tag_mask & wm_global.tag_mask) {
             return client;
         }
     }
-    while (client->window) {
+    while (client) {
         client = client->next;
-        if (client->tag_mask & wm_global.tag_mask) {
+        if (client && client->tag_mask & wm_global.tag_mask) {
             return client;
         }
     }
@@ -374,12 +380,7 @@ void wm_init() {
     wm_global.running = false;
     wm_global.tag_mask = 1;
     wm_global.client_list.size = 0;
-    wm_global.client_list.active_client = NULL;
-    wm_global.client_list.head_client = malloc(sizeof(wm_client_t));
-    wm_global.client_list.head_client->window = 0;
-    wm_global.client_list.head_client->next = NULL;
-    wm_global.client_list.head_client->prev = NULL;
-    wm_global.client_list.head_client->tag_mask = 0;
+    wm_global.client_list.head_client = NULL;
     wm_global.master_width = MASTER_WIDTH;
     wm_global.border_width = BORDER_WIDTH;
     wm_global.tag_mask = 1;
