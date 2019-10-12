@@ -332,10 +332,10 @@ void wm_client_unmanage(Window window) {
 
 wm_client_t *wm_client_find(Window window) {
     wm_client_t *client = wm_global.client_list.head_client;
-    while (client->window && client->window != window) {
+    while (client && client->window != window) {
         client = client->next;
     }
-    if (!client->window) {
+    if (!client) {
         return NULL;
     }
     return client;
@@ -356,19 +356,23 @@ void wm_run() {
     while (!XNextEvent(wm_global.display, &event) && wm_global.running) {
         switch(event.type) {
             case MapRequest:
+                logs("EVENT: MapRequest");
                 wm_on_map_request(&event.xmaprequest);
                 break;
             case UnmapNotify:
+                logs("EVENT: UnmapNotify");
                 wm_on_unmap_notify(&event.xunmap);
                 break;
             case DestroyNotify:
+                logs("EVENT: DestroyNotify");
                 wm_on_destroy_notify(&event.xdestroywindow);
                 break;
             case KeyPress:
+                logs("EVENT: KeyPressed");
                 wm_on_key_press(&event.xkey);
                 break;
             default:
-                logsi("unhandled event", event.type);
+                logsi("EVENT: ", event.type);
         }
     }
 }
