@@ -106,6 +106,7 @@ void wm_retag(int tag_mask) {
     }
     wm_clients_map();
     wm_clients_arrange();
+    wm_client_focus(wm_global.client_list.active_client);
 }
 
 void wm_rehead() {
@@ -373,15 +374,11 @@ void wm_run() {
             case KeyPress:
                 wm_on_key_press(&event.xkey);
                 break;
-            default:
-                logsi("EVENT: ", event.type);
         }
     }
 }
 
 void wm_init() {
-    logs("\nSTART");
-
     // initialize global variables
     wm_global.running = false;
     wm_global.tag_mask = 1;

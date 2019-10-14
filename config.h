@@ -1,7 +1,6 @@
 #include "definitions.h"
 
 // MODULES
-#include "modules/logger.c"
 
 // LAYOUTS
 #include "layouts/masterstack.c"
@@ -80,6 +79,4 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY|ControlMask|ShiftMask, XK_8, wm_add_tag_to_client, INTEGER, "128"},
     {MODKEY|ControlMask|ShiftMask, XK_9, wm_add_tag_to_client, INTEGER, "256"},
     {MODKEY|ControlMask|ShiftMask, XK_0, wm_add_tag_to_client, INTEGER, "-1"},
-    // log the current state of the list
-    {MODKEY|ControlMask|ShiftMask, XK_l, log_state, NONE, NULL},
 };
