@@ -72,15 +72,14 @@ void wm_spawn(char *name) {
 }
 
 void wm_set_tag_mask_of_focused_client(int tag_mask){
-    if (!wm_global.client_list.active_client) {
-        return;
-    }
-    wm_clients_count(tag_mask);
-    wm_global.client_list.active_client->tag_mask = tag_mask;
-    if (!(tag_mask & wm_global.tag_mask)) {
-        XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
-        wm_client_find_new_focus(wm_global.client_list.active_client);
-        wm_clients_arrange();
+    if (wm_global.client_list.active_client) {
+        wm_clients_count(tag_mask);
+        wm_global.client_list.active_client->tag_mask = tag_mask;
+        if (!(tag_mask & wm_global.tag_mask)) {
+            XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
+            wm_client_find_new_focus(wm_global.client_list.active_client);
+            wm_clients_arrange();
+        }
     }
 }
 
@@ -89,7 +88,9 @@ void wm_add_tag_to_tag_mask(int tag) {
 }
 
 void wm_add_tag_to_client(int tag) {
-    wm_global.client_list.active_client->tag_mask = wm_global.client_list.active_client->tag_mask | tag;
+    if (wm_global.client_list.active_client) {
+        wm_global.client_list.active_client->tag_mask = wm_global.client_list.active_client->tag_mask | tag;
+    }
 }
 
 void wm_retag(int tag_mask) {
