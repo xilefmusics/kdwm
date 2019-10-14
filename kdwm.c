@@ -208,6 +208,7 @@ void wm_client_rehead(wm_client_t *client) {
     }
     client->prev = NULL;
     client->next = wm_global.client_list.head_client;
+    wm_global.client_list.head_client->prev = client;
     wm_global.client_list.head_client = client;
 }
 
