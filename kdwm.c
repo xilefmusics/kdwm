@@ -37,6 +37,7 @@ void wm_on_key_press(XKeyEvent *event) {
                     wm_keybindings[i].func(atoi(wm_keybindings[i].arg));
                     break;
             }
+            return;
         }
     }
 }
