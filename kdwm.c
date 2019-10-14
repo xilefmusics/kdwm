@@ -198,7 +198,7 @@ void wm_client_swap(wm_client_t *client1, wm_client_t *client2) {
 }
 
 void wm_client_rehead(wm_client_t *client) {
-    if (client == wm_global.client_list.head_client) {
+    if (!client || client == wm_global.client_list.head_client) {
         return;
     }
     if (client->next) {
