@@ -349,10 +349,12 @@ wm_client_t *wm_client_find(Window window) {
 }
 
 void wm_client_set_border_color(wm_client_t *client) {
-    if (client == wm_global.client_list.active_client) {
-        XSetWindowBorder(wm_global.display, client->window, wm_global.border_color_active.pixel);
-    } else {
-        XSetWindowBorder(wm_global.display, client->window, wm_global.border_color_passive.pixel);
+    if (client) {
+        if (client == wm_global.client_list.active_client) {
+            XSetWindowBorder(wm_global.display, client->window, wm_global.border_color_active.pixel);
+        } else {
+            XSetWindowBorder(wm_global.display, client->window, wm_global.border_color_passive.pixel);
+        }
     }
 }
 
