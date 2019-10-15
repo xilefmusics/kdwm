@@ -29,18 +29,23 @@ void log_state() {
     char path_buffer[256];
     char *homedir = getenv("HOME");
     strcpy(path_buffer, homedir);
-    strcat(path_buffer, "/.kdwm/state.txt");
+    strcat(path_buffer, "/.kdwm/log.txt");
     FILE *fp = fopen(path_buffer, "a");
     // log
-    fprintf(fp, "state:\n");
+    fprintf(fp, "NEW STATE:\n");
+    // log list
     wm_client_t *client = wm_global.client_list.head_client;
-    while (client->next != NULL) {
-        fprintf(fp, "client window-ID %d, tag-mask (in hex) %x; ", client->window, client->tag_mask);
-        client = client->next;
-    }
-    if (client!=NULL) {
-        fprintf(fp, "client window-ID %d, tag-mask (in hex) %x; \n", client->window, client->tag_mask);
-    }
+    do {
+        if (client->next && client->prev) {
+            fprintf(fp, "\t%d <- %d (%x) -> %d\n", client->prev->window, client->window, client->tag_mask, client->next->window);
+        } else if (client->next) {
+            fprintf(fp, "\t%d <- %d (%x) -> %d\n", -1, client->window, client->tag_mask, client->next->window);
+        } else if (client->prev) {
+            fprintf(fp, "\t%d <- %d (%x) -> %d\n", client->prev->window, client->window, client->tag_mask, -1);
+        } else {
+            fprintf(fp, "\t%d <- %d (%x) -> %d\n", -1, client->window, client->tag_mask, -1);
+        }
+    } while ((client = client->next));
     // close logging
     fclose(fp);
 }
