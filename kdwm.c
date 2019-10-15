@@ -320,6 +320,10 @@ void wm_client_draw(wm_client_t *client, int x, int y, int w, int h) {
 }
 
 void wm_client_manage(Window window) {
+    wm_client_t *client = wm_client_find(window);
+    if (client) {
+        return;
+    }
     XMapWindow(wm_global.display, window);
     wm_client_add(window);
     wm_client_focus(wm_global.client_list.head_client);
@@ -376,15 +380,11 @@ void wm_run() {
             case KeyPress:
                 wm_on_key_press(&event.xkey);
                 break;
-            default:
-                logsi("Unhandled Event: ", event.type);
         }
     }
 }
 
 void wm_init() {
-    logs("\nSTART");
-    // initialize global variables
     wm_global.running = false;
     wm_global.tag_mask = 1;
     wm_global.client_list.size = 0;
