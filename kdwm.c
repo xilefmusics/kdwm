@@ -376,11 +376,14 @@ void wm_run() {
             case KeyPress:
                 wm_on_key_press(&event.xkey);
                 break;
+            default:
+                logsi("Unhandled Event: ", event.type);
         }
     }
 }
 
 void wm_init() {
+    logs("\nSTART");
     // initialize global variables
     wm_global.running = false;
     wm_global.tag_mask = 1;
