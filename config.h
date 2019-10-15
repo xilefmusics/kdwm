@@ -22,13 +22,6 @@ static wm_keybinding_t wm_keybindings[] = {
     // spawn
     {MODKEY, XK_Return, wm_spawn, STRING, "st"},
     {MODKEY, XK_r, wm_spawn, STRING, "dmenu_run"},
-    {MODKEY|ControlMask, XK_d, wm_spawn, STRING, "xys --showMonitorChooser"},
-    {MODKEY|ControlMask, XK_a, wm_spawn, STRING, "xys --showCardChooser"},
-    {MODKEY|ControlMask, XK_m, wm_spawn, STRING, "xys --showMountMenu"},
-    {MODKEY|ControlMask, XK_u, wm_spawn, STRING, "xys --showUnmountMenu"},
-    {MODKEY|ControlMask, XK_s, wm_spawn, STRING, "xys --showSystemMenu"},
-    {MODKEY, XK_b, wm_spawn, STRING, "chromium"},
-    {MODKEY, XK_e, wm_spawn, STRING, "st -e ranger"},
     // clients
     {MODKEY, XK_j, wm_focus_next, NONE, NULL},
     {MODKEY, XK_k, wm_focus_prev, NONE, NULL},
