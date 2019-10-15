@@ -1,16 +1,16 @@
-all: kdwm_dev
+all: kdwm
 
-force: clean kdwm_dev
+force: clean kdwm
 
-kdwm_dev: kdwm.c config.h definitions.h
-	cc -lX11 kdwm.c -o kdwm_dev
+kdwm: kdwm.c config.h definitions.h
+	cc -lX11 kdwm.c -o kdwm
 
 clean:
-	rm kdwm_dev
+	rm kdwm
 
 install:
-	cp -f kdwm_dev /bin/kdwm_dev
+	cp -f kdwm /bin/kdwm
 
 run: kdwm
 	clear
-	./kdwm_dev
+	./kdwm
