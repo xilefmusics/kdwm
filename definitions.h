@@ -11,12 +11,10 @@
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 
 // definitions
-typedef enum {NONE, STRING, INTEGER} wm_arg_types;
+typedef enum {NONE, STRING, INTEGER} wm_arg_types_t;
 
 enum {WM_PROTOCOLS, WM_DELETE_WINDOW};
-
-typedef struct wm_client wm_client_t;
-struct wm_client {
+typedef struct wm_client wm_client_t; struct wm_client {
     Window window;
     wm_client_t *next;
     wm_client_t *prev;
@@ -38,6 +36,7 @@ typedef struct wm_global {
     int tag_mask;
     int master_width;
     int border_width;
+    Window temp_next_fullscreen;
     Atom atoms[2];
     wm_client_list_t client_list;
     int current_layout;
@@ -49,7 +48,7 @@ typedef struct wm_keybinding {
     int mod;
     int keysym;
     void (*func)();
-    wm_arg_types arg_type;
+    wm_arg_types_t arg_type;
     char *arg;
 } wm_keybinding_t;
 
@@ -58,6 +57,7 @@ int wm_err_detect_other(Display * display, XErrorEvent *event);
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event);
+void wm_on_configure_request(XConfigureEvent *event);
 void wm_on_unmap_notify(XUnmapEvent *event);
 void wm_on_destroy_notify(XDestroyWindowEvent *event);
 void wm_on_key_press(XKeyEvent *event);
@@ -91,7 +91,7 @@ int wm_clients_count();
 void wm_clients_arrange();
 void wm_clients_map();
 void wm_clients_unmap();
-void wm_client_draw(wm_client_t *client, int x, int y, int w, int h);
+void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border);
 wm_client_t *wm_client_find(Window window);
 void wm_client_manage(Window window);
 void wm_client_unmanage(Window window);

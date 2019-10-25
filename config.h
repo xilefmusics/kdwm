@@ -13,6 +13,7 @@ static const int MASTER_WIDTH = 50;
 static const int BORDER_WIDTH = 1;
 static const char* BORDER_COLOR_ACTIVE = "#61afef";
 static const char* BORDER_COLOR_PASSIVE = "#21252b";
+static const int FULLSCREEN_TAG_MASK = 1;
 
 #define MODKEY Mod4Mask
 
@@ -38,6 +39,7 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY, XK_l, wm_change_master_width, INTEGER, "5"},
     {MODKEY, XK_z, wm_change_master_width, INTEGER, "0"},
     // switch tag
+    {MODKEY, XK_f, wm_retag, INTEGER, "0"},
     {MODKEY, XK_1, wm_retag, INTEGER, "1"},
     {MODKEY, XK_2, wm_retag, INTEGER, "2"},
     {MODKEY, XK_3, wm_retag, INTEGER, "4"},

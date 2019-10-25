@@ -8,9 +8,13 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
-    logsi("START MAP REQUEST", event->window);
+    logsi("MAP", event->window);
     wm_client_manage(event->window);
-    logsi("STOP MAP REQUEST", event->window);
+}
+
+void wm_on_configure_request(XConfigureEvent *event) {
+    logsi("CONFIGURE WINDOW", event->window);
+    wm_global.tag_mask = FULLSCREEN_TAG_MASK;
 }
 
 void wm_on_unmap_notify(XUnmapEvent *event) {
@@ -284,7 +288,14 @@ int wm_clients_count(){
 }
 
 void wm_clients_arrange() {
-    (*layouts[wm_global.current_layout])();
+    if (wm_global.tag_mask == FULLSCREEN_TAG_MASK) {
+        int temp_layout = wm_global.current_layout;
+        wm_global.current_layout = MONOCLE;
+        (*layouts[wm_global.current_layout])();
+        wm_global.current_layout = temp_layout;
+    } else {
+        (*layouts[wm_global.current_layout])();
+    }
 }
 
 void wm_clients_map() {
@@ -311,15 +322,23 @@ void wm_clients_unmap() {
     } while (client = client->next);
 }
 
-void wm_client_draw(wm_client_t *client, int x, int y, int w, int h) {
+void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border) {
     XWindowChanges changes;
     changes.x = x;
     changes.y = y;
-    changes.width = w-2*wm_global.border_width;
-    changes.height = h-2*wm_global.border_width;
-    changes.border_width = wm_global.border_width;
-    XConfigureWindow(wm_global.display, client->window, 31, &changes);
-    wm_client_set_border_color(client);
+    if (border) {
+        logsi("DRAW WINDOW WITH BORDER", client->window);
+        changes.width = w-2*wm_global.border_width;
+        changes.height = h-2*wm_global.border_width;
+        changes.border_width = wm_global.border_width;
+        XConfigureWindow(wm_global.display, client->window, 31, &changes);
+        wm_client_set_border_color(client);
+    } else {
+        logsi("DRAW WINDOW WITHOUT BORDER", client->window);
+        changes.width = w;
+        changes.height = h;
+        XConfigureWindow(wm_global.display, client->window, 15, &changes);
+    }
 }
 
 void wm_client_manage(Window window) {
@@ -384,13 +403,7 @@ void wm_run() {
                 wm_on_key_press(&event.xkey);
                 break;
             case ConfigureRequest:
-                logs("Configure Request");
-                XConfigureEvent e = event.xconfigure;
-                logsi("-> Window:", e.window);
-                logsi("-> x:", e.x);
-                logsi("-> y:", e.y);
-                logsi("-> width:", e.width);
-                logsi("-> height:", e.height);
+                wm_on_configure_request(&event.xconfigure);
                 break;
             default:
                 logsi("EVENT", event.type);
@@ -408,6 +421,7 @@ void wm_init() {
     wm_global.border_width = BORDER_WIDTH;
     wm_global.tag_mask = 1;
     wm_global.current_layout = MASTERSTACK;
+    wm_global.temp_next_fullscreen = 0;
 
     // open display (connection to X-Server)
     wm_global.display = XOpenDisplay(NULL);
