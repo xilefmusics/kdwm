@@ -1,6 +1,7 @@
 #include "definitions.h"
 
 // MODULES
+#include "modules/logger.c"
 
 // LAYOUTS
 #include "layouts/masterstack.c"
@@ -16,6 +17,7 @@ static const char* BORDER_COLOR_PASSIVE = "#21252b";
 #define MODKEY Mod4Mask
 
 static wm_keybinding_t wm_keybindings[] = {
+    {MODKEY, XK_s, wm_spawn, STRING, "supertuxkart"},
     // stop
     {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
     // spawn

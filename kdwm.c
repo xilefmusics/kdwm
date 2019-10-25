@@ -8,7 +8,9 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
+    logsi("START MAP REQUEST", event->window);
     wm_client_manage(event->window);
+    logsi("STOP MAP REQUEST", event->window);
 }
 
 void wm_on_unmap_notify(XUnmapEvent *event) {
@@ -65,6 +67,7 @@ void wm_kill_active_client() {
 }
 
 void wm_spawn(char *name) {
+    logs(name);
     char buffer[256];
     strcpy(buffer, name);
     strcat(buffer, " &");
@@ -380,11 +383,23 @@ void wm_run() {
             case KeyPress:
                 wm_on_key_press(&event.xkey);
                 break;
+            case ConfigureRequest:
+                logs("Configure Request");
+                XConfigureEvent e = event.xconfigure;
+                logsi("-> Window:", e.window);
+                logsi("-> x:", e.x);
+                logsi("-> y:", e.y);
+                logsi("-> width:", e.width);
+                logsi("-> height:", e.height);
+                break;
+            default:
+                logsi("EVENT", event.type);
         }
     }
 }
 
 void wm_init() {
+    logs("START");
     wm_global.running = false;
     wm_global.tag_mask = 1;
     wm_global.client_list.size = 0;
