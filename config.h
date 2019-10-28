@@ -13,12 +13,13 @@ static const int MASTER_WIDTH = 50;
 static const int BORDER_WIDTH = 1;
 static const char* BORDER_COLOR_ACTIVE = "#61afef";
 static const char* BORDER_COLOR_PASSIVE = "#21252b";
-static const int FULLSCREEN_TAG_MASK = 1;
+static const int FULLSCREEN_TAG_MASK = 512;
 
 #define MODKEY Mod4Mask
 
 static wm_keybinding_t wm_keybindings[] = {
     {MODKEY, XK_s, wm_spawn, STRING, "supertuxkart"},
+    {MODKEY, XK_p, log_state, NONE, NULL},
     // stop
     {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
     // spawn
@@ -39,7 +40,6 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY, XK_l, wm_change_master_width, INTEGER, "5"},
     {MODKEY, XK_z, wm_change_master_width, INTEGER, "0"},
     // switch tag
-    {MODKEY, XK_f, wm_retag, INTEGER, "0"},
     {MODKEY, XK_1, wm_retag, INTEGER, "1"},
     {MODKEY, XK_2, wm_retag, INTEGER, "2"},
     {MODKEY, XK_3, wm_retag, INTEGER, "4"},
@@ -50,6 +50,7 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY, XK_8, wm_retag, INTEGER, "128"},
     {MODKEY, XK_9, wm_retag, INTEGER, "256"},
     {MODKEY, XK_0, wm_retag, INTEGER, "-1"},
+    {MODKEY, XK_f, wm_retag, INTEGER, "512"},
     // move client to tag
     {MODKEY|ShiftMask, XK_1, wm_set_tag_mask_of_focused_client, INTEGER, "1"},
     {MODKEY|ShiftMask, XK_2, wm_set_tag_mask_of_focused_client, INTEGER, "2"},

@@ -8,13 +8,22 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
-    logsi("MAP", event->window);
+    if (event->window == wm_global.temp_next_fullscreen) {
+        logsi("MAP REQUEST FULLSCREEN", event->window);
+        wm_client_t* client = malloc(sizeof(wm_client_t));
+        wm_client_add(event->window);
+        wm_global.client_list.active_client = wm_global.client_list.head_client;
+        wm_client_draw(wm_global.client_list.head_client, 0, 0, wm_global.screen_width, wm_global.screen_height, false);
+        XMapWindow(wm_global.display, event->window);
+        return;
+    }
+    logsi("MAP REQUEST", event->window);
     wm_client_manage(event->window);
 }
 
 void wm_on_configure_request(XConfigureEvent *event) {
-    logsi("CONFIGURE WINDOW", event->window);
-    wm_global.tag_mask = FULLSCREEN_TAG_MASK;
+    wm_global.temp_next_fullscreen = event->window;
+    wm_retag(FULLSCREEN_TAG_MASK);
 }
 
 void wm_on_unmap_notify(XUnmapEvent *event) {
@@ -106,6 +115,13 @@ void wm_retag(int tag_mask) {
     }
     wm_clients_unmap();
     wm_global.tag_mask = tag_mask;
+
+    // temp
+    if (wm_global.temp_next_fullscreen && tag_mask == FULLSCREEN_TAG_MASK) {
+        XMapWindow(wm_global.display, wm_global.temp_next_fullscreen);
+        return;
+    }
+
     if (wm_global.client_list.head_client && wm_global.client_list.head_client->tag_mask & tag_mask) {
         wm_global.client_list.active_client = wm_global.client_list.head_client;
     } else {
@@ -157,6 +173,11 @@ void wm_change_master_width(int percent) {
 
 // client
 void wm_client_add(Window window) {
+    wm_client_t *client = wm_client_find(window);
+    if (client) {
+        return;
+    }
+    logsi("ADD CLIENT", window);
     wm_client_t *new = malloc(sizeof(wm_client_t));
     new->window = window;
     new->prev = NULL;
@@ -288,14 +309,7 @@ int wm_clients_count(){
 }
 
 void wm_clients_arrange() {
-    if (wm_global.tag_mask == FULLSCREEN_TAG_MASK) {
-        int temp_layout = wm_global.current_layout;
-        wm_global.current_layout = MONOCLE;
-        (*layouts[wm_global.current_layout])();
-        wm_global.current_layout = temp_layout;
-    } else {
-        (*layouts[wm_global.current_layout])();
-    }
+    (*layouts[wm_global.current_layout])();
 }
 
 void wm_clients_map() {
@@ -327,14 +341,12 @@ void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border
     changes.x = x;
     changes.y = y;
     if (border) {
-        logsi("DRAW WINDOW WITH BORDER", client->window);
         changes.width = w-2*wm_global.border_width;
         changes.height = h-2*wm_global.border_width;
         changes.border_width = wm_global.border_width;
         XConfigureWindow(wm_global.display, client->window, 31, &changes);
         wm_client_set_border_color(client);
     } else {
-        logsi("DRAW WINDOW WITHOUT BORDER", client->window);
         changes.width = w;
         changes.height = h;
         XConfigureWindow(wm_global.display, client->window, 15, &changes);
@@ -342,10 +354,7 @@ void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border
 }
 
 void wm_client_manage(Window window) {
-    wm_client_t *client = wm_client_find(window);
-    if (client) {
-        return;
-    }
+    logsi("MANAGE", window);
     XMapWindow(wm_global.display, window);
     wm_client_add(window);
     wm_client_focus(wm_global.client_list.head_client);
