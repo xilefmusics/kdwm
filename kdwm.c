@@ -414,7 +414,6 @@ void wm_init() {
     wm_global.border_width = BORDER_WIDTH;
     wm_global.tag_mask = 1;
     wm_global.current_layout = MASTERSTACK;
-    wm_global.temp_next_fullscreen = 0;
 
     // open display (connection to X-Server)
     wm_global.display = XOpenDisplay(NULL);

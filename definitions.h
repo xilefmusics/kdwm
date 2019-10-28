@@ -36,7 +36,6 @@ typedef struct wm_global {
     int tag_mask;
     int master_width;
     int border_width;
-    Window temp_next_fullscreen;
     Atom atoms[2];
     wm_client_list_t client_list;
     int current_layout;
