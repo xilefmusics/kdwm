@@ -8,22 +8,16 @@ int wm_err_detect_other(Display *display, XErrorEvent *event) {
 
 // event handler
 void wm_on_map_request(XMapRequestEvent *event) {
-    if (event->window == wm_global.temp_next_fullscreen) {
-        logsi("MAP REQUEST FULLSCREEN", event->window);
-        wm_client_t* client = malloc(sizeof(wm_client_t));
-        wm_client_add(event->window);
-        wm_global.client_list.active_client = wm_global.client_list.head_client;
-        wm_client_draw(wm_global.client_list.head_client, 0, 0, wm_global.screen_width, wm_global.screen_height, false);
-        XMapWindow(wm_global.display, event->window);
-        return;
-    }
-    logsi("MAP REQUEST", event->window);
     wm_client_manage(event->window);
 }
 
 void wm_on_configure_request(XConfigureEvent *event) {
-    wm_global.temp_next_fullscreen = event->window;
-    wm_retag(FULLSCREEN_TAG_MASK);
+    XWindowChanges changes;
+    changes.x = event->x;
+    changes.y = event->y;
+    changes.width = event->width;
+    changes.height = event->height;
+    XConfigureWindow(wm_global.display, event->window, 15, &changes);
 }
 
 void wm_on_unmap_notify(XUnmapEvent *event) {
@@ -80,7 +74,6 @@ void wm_kill_active_client() {
 }
 
 void wm_spawn(char *name) {
-    logs(name);
     char buffer[256];
     strcpy(buffer, name);
     strcat(buffer, " &");
@@ -115,13 +108,6 @@ void wm_retag(int tag_mask) {
     }
     wm_clients_unmap();
     wm_global.tag_mask = tag_mask;
-
-    // temp
-    if (wm_global.temp_next_fullscreen && tag_mask == FULLSCREEN_TAG_MASK) {
-        XMapWindow(wm_global.display, wm_global.temp_next_fullscreen);
-        return;
-    }
-
     if (wm_global.client_list.head_client && wm_global.client_list.head_client->tag_mask & tag_mask) {
         wm_global.client_list.active_client = wm_global.client_list.head_client;
     } else {
@@ -177,7 +163,6 @@ void wm_client_add(Window window) {
     if (client) {
         return;
     }
-    logsi("ADD CLIENT", window);
     wm_client_t *new = malloc(sizeof(wm_client_t));
     new->window = window;
     new->prev = NULL;
@@ -354,7 +339,6 @@ void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border
 }
 
 void wm_client_manage(Window window) {
-    logsi("MANAGE", window);
     XMapWindow(wm_global.display, window);
     wm_client_add(window);
     wm_client_focus(wm_global.client_list.head_client);
