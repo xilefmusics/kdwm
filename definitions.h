@@ -20,6 +20,7 @@ typedef struct wm_client wm_client_t; struct wm_client {
     wm_client_t *next;
     wm_client_t *prev;
     int tag_mask;
+    int x, y, w, h;
 };
 
 typedef struct wm_client_list {
@@ -40,6 +41,7 @@ typedef struct wm_global {
     Atom atoms[2];
     wm_client_list_t client_list;
     int current_layout;
+    Colormap colormap;
     XColor border_color_active, border_color_passive;
 } wm_global_t;
 static wm_global_t wm_global;

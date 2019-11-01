@@ -17,14 +17,17 @@ static void (*layouts[])() =  {masterstack, monocle};
 #include "modules/logger.c"
 #include "modules/basic_user_control.c"
 #include "modules/open_windows_on_start.c"
+#include "modules/window_properties.c"
+#include "modules/battery_visualizer.c"
 
 // ON_START AND ON_STOP
-static void (*wm_on_init[])() = {open_windows_on_start};
+static void (*wm_on_init[])() = {open_windows_on_start, battery_visualizer_init};
 static void (*wm_on_tini[])() = {};
 
 // KEYBINDINGS
 #define MODKEY Mod4Mask
 static wm_keybinding_t wm_keybindings[] = {
+    {MODKEY|ControlMask, XK_b, show_battery, NONE, NULL},
     {0, XF86XK_AudioLowerVolume,     wm_spawn, STRING, "amixer set Master 5%-"},
     {0, XF86XK_AudioRaiseVolume,     wm_spawn, STRING, "amixer set Master 5%+"},
     {0, XF86XK_AudioMute,        wm_spawn, STRING, "amixer set Master toggle"},

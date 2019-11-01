@@ -29,6 +29,10 @@ void show_battery() {
         index = (int) (percentage / 10);
     }
     wm_client_t *client = wm_global.client_list.active_client;
+    logsi("x", client->x);
+    logsi("y", client->y);
+    logsi("w", client->w);
+    logsi("h", client->h);
     wm_client_draw(client, client->x, client->y, client->w, client->h, true);
     XColor temp = wm_global.border_color_active;
     wm_global.border_color_active = battery_visualizer_colors[index];

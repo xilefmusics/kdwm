@@ -216,6 +216,10 @@ void wm_clients_unmap() {
 }
 
 void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border) {
+    client->x = x;
+    client->y = y;
+    client->w = w;
+    client->h = h;
     XWindowChanges changes;
     changes.x = x;
     changes.y = y;
@@ -345,9 +349,9 @@ void wm_init() {
 	wm_global.atoms[WM_DELETE_WINDOW] = XInternAtom(wm_global.display, "WM_DELETE_WINDOW", false);
 
     // init colors
-    Colormap colormap = XCreateColormap(wm_global.display, wm_global.root_window, XDefaultVisual(wm_global.display, wm_global.screen), AllocNone);
-    XAllocNamedColor(wm_global.display, colormap, BORDER_COLOR_ACTIVE, &wm_global.border_color_active, &wm_global.border_color_active);
-    XAllocNamedColor(wm_global.display, colormap, BORDER_COLOR_PASSIVE, &wm_global.border_color_passive, &wm_global.border_color_passive);
+    wm_global.colormap = XCreateColormap(wm_global.display, wm_global.root_window, XDefaultVisual(wm_global.display, wm_global.screen), AllocNone);
+    XAllocNamedColor(wm_global.display, wm_global.colormap, BORDER_COLOR_ACTIVE, &wm_global.border_color_active, &wm_global.border_color_active);
+    XAllocNamedColor(wm_global.display, wm_global.colormap, BORDER_COLOR_PASSIVE, &wm_global.border_color_passive, &wm_global.border_color_passive);
 
     // init modules
     for (int i = 0; i < LENGTH(wm_on_init); i++) {
