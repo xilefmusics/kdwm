@@ -1,7 +1,11 @@
 #include "definitions.h"
 
-// MODULES
-#include "modules/logger.c"
+// VARIABLES
+static const int MASTER_WIDTH = 50;
+static const int BORDER_WIDTH = 1;
+static const char* BORDER_COLOR_ACTIVE = "#61afef";
+static const char* BORDER_COLOR_PASSIVE = "#21252b";
+static const int FULLSCREEN_TAG_MASK = 512;
 
 // LAYOUTS
 #include "layouts/masterstack.c"
@@ -9,14 +13,17 @@
 enum {MASTERSTACK, MONOCLE};
 static void (*layouts[])() =  {masterstack, monocle};
 
-static const int MASTER_WIDTH = 50;
-static const int BORDER_WIDTH = 1;
-static const char* BORDER_COLOR_ACTIVE = "#61afef";
-static const char* BORDER_COLOR_PASSIVE = "#21252b";
-static const int FULLSCREEN_TAG_MASK = 512;
+// MODULES
+#include "modules/logger.c"
+#include "modules/default_user_control.c"
+#include "modules/open_windows_on_start.c"
 
+// ON_START AND ON_STOP
+static void (*wm_on_init[])() = {open_windows_on_start};
+static void (*wm_on_tini[])() = {};
+
+// KEYBINDINGS
 #define MODKEY Mod4Mask
-
 static wm_keybinding_t wm_keybindings[] = {
     {0, XF86XK_AudioLowerVolume,     wm_spawn, STRING, "amixer set Master 5%-"},
     {0, XF86XK_AudioRaiseVolume,     wm_spawn, STRING, "amixer set Master 5%+"},
