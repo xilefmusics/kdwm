@@ -15,7 +15,7 @@ static void (*layouts[])() =  {masterstack, monocle};
 
 // MODULES
 #include "modules/logger.c"
-#include "modules/default_user_control.c"
+#include "modules/basic_user_control.c"
 #include "modules/open_windows_on_start.c"
 
 // ON_START AND ON_STOP
