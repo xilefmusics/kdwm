@@ -232,7 +232,8 @@ void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border
     } else {
         changes.width = w;
         changes.height = h;
-        XConfigureWindow(wm_global.display, client->window, 15, &changes);
+        changes.border_width = 0;
+        XConfigureWindow(wm_global.display, client->window, 31, &changes);
     }
 }
 
