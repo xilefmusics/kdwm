@@ -377,7 +377,18 @@ void wm_client_set_border_color(wm_client_t *client) {
     }
 }
 
+
 // basic functions
+void wm_keys_grab() {
+    KeyCode keycode;
+    XUngrabButton(wm_global.display, AnyKey, AnyModifier, wm_global.root_window);
+    for (int i = 0; i < LENGTH(wm_keybindings); i++) {
+        if (keycode = XKeysymToKeycode(wm_global.display, wm_keybindings[i].keysym)) {
+            XGrabKey(wm_global.display, keycode,  wm_keybindings[i].mod, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
+        }
+    }
+}
+
 void wm_run() {
     XEvent event;
     XSync(wm_global.display, False);
@@ -433,7 +444,7 @@ void wm_init() {
     XSelectInput(wm_global.display, wm_global.root_window, SubstructureRedirectMask | SubstructureNotifyMask | KeyPressMask);
 
     // grab all key events while MODKEY is pressed
-    XGrabKey(wm_global.display, AnyKey, MODKEY, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
+    wm_keys_grab();
 
     // add windows who are actually open
     Window root_return, parent_return, *children_return;

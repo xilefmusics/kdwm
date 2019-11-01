@@ -18,6 +18,9 @@ static const int FULLSCREEN_TAG_MASK = 512;
 #define MODKEY Mod4Mask
 
 static wm_keybinding_t wm_keybindings[] = {
+    {0, XF86XK_AudioLowerVolume,     wm_spawn, STRING, "amixer set Master 5%-"},
+    {0, XF86XK_AudioRaiseVolume,     wm_spawn, STRING, "amixer set Master 5%+"},
+    {0, XF86XK_AudioMute,        wm_spawn, STRING, "amixer set Master toggle"},
     {MODKEY, XK_s, wm_spawn, STRING, "supertuxkart"},
     {MODKEY, XK_p, log_state, NONE, NULL},
     // stop

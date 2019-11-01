@@ -6,6 +6,7 @@
 
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+#include <X11/XF86keysym.h>
 
 // makros
 #define LENGTH(X)               (sizeof X / sizeof X[0])
@@ -97,6 +98,7 @@ void wm_client_unmanage(Window window);
 void wm_client_set_border_color(wm_client_t *client);
 
 // basic functions
+void wm_keys_grab();
 void wm_run();
 void wm_init();
 void wm_start();
