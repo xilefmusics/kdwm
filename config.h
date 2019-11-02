@@ -27,6 +27,7 @@ static void (*wm_on_tini[])() = {};
 #define MODKEY Mod4Mask
 static wm_keybinding_t wm_keybindings[] = {
     {MODKEY|ControlMask, XK_b, show_battery, NONE, NULL},
+    {MODKEY|ControlMask, XK_m, wm_monitor_update, NONE, NULL},
     {0, XF86XK_AudioLowerVolume,     wm_spawn, STRING, "amixer set Master 5%-"},
     {0, XF86XK_AudioRaiseVolume,     wm_spawn, STRING, "amixer set Master 5%+"},
     {0, XF86XK_AudioMute,        wm_spawn, STRING, "amixer set Master toggle"},
@@ -37,6 +38,9 @@ static wm_keybinding_t wm_keybindings[] = {
     // spawn
     {MODKEY, XK_Return, wm_spawn, STRING, "st"},
     {MODKEY, XK_r, wm_spawn, STRING, "dmenu_run"},
+    // monitors
+    {MODKEY, XK_u, move_tag_mask_to_next_monitor, NONE, NULL},
+    {MODKEY, XK_i, move_tag_mask_to_prev_monitor, NONE, NULL},
     // clients
     {MODKEY, XK_j, wm_focus_next, NONE, NULL},
     {MODKEY, XK_k, wm_focus_prev, NONE, NULL},

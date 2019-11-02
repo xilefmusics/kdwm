@@ -1,6 +1,6 @@
-void monocle() {
+void monocle(wm_monitor_t *monitor) {
     wm_client_t *client = NULL;
     while (client = wm_client_get_next(client)){
-        wm_client_draw(client, 0, 0, wm_global.screen_width, wm_global.screen_height, false);
+        wm_client_draw(client, monitor->x, monitor->y, monitor->w, monitor->h, false);
     }
 }

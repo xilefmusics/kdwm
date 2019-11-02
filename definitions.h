@@ -5,6 +5,7 @@
 #include <stddef.h>
 
 #include <X11/Xlib.h>
+#include <X11/extensions/Xinerama.h>
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
 
@@ -15,19 +16,32 @@
 typedef enum {NONE, STRING, INTEGER} wm_arg_types_t;
 
 enum {WM_PROTOCOLS, WM_DELETE_WINDOW};
-typedef struct wm_client wm_client_t; struct wm_client {
+
+typedef struct wm_client {
     Window window;
-    wm_client_t *next;
-    wm_client_t *prev;
+    struct wm_client *next;
+    struct wm_client *prev;
     int tag_mask;
     int x, y, w, h;
-};
+} wm_client_t;
 
 typedef struct wm_client_list {
     wm_client_t *head_client;
     wm_client_t *active_client;
     int size;
 } wm_client_list_t;
+
+typedef struct wm_monitor {
+    int x, y, w, h;
+    int tag_mask;
+    struct wm_monitor *next;
+    struct wm_monitor *prev;
+} wm_monitor_t;
+
+typedef struct wm_monitor_list {
+    wm_monitor_t *head_monitor;
+    int size;
+} wm_monitor_list_t;
 
 typedef struct wm_global {
     Display *display;
@@ -40,6 +54,7 @@ typedef struct wm_global {
     int border_width;
     Atom atoms[2];
     wm_client_list_t client_list;
+    wm_monitor_list_t monitor_list;
     int current_layout;
     Colormap colormap;
     XColor border_color_active, border_color_passive;
@@ -77,12 +92,16 @@ void wm_client_send_XEvent(wm_client_t *client, Atom atom);
 int wm_clients_count();
 void wm_clients_arrange();
 void wm_clients_map();
-void wm_clients_unmap();
+void wm_clients_unmap(int new_tag_mask, int old_tag_mask);
 void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border);
 wm_client_t *wm_client_find(Window window);
 void wm_client_manage(Window window);
 void wm_client_unmanage(Window window);
 void wm_client_set_border_color(wm_client_t *client);
+
+// monitor
+wm_monitor_t *wm_get_monitor(int tag_mask);
+void wm_monitor_update();
 
 // basic functions
 void wm_keys_grab();

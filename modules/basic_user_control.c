@@ -2,7 +2,7 @@ void wm_retag(int tag_mask) {
     if (tag_mask == wm_global.tag_mask) {
         return;
     }
-    wm_clients_unmap();
+    wm_clients_unmap(tag_mask, wm_global.tag_mask);
     wm_global.tag_mask = tag_mask;
     if (wm_global.client_list.head_client && wm_global.client_list.head_client->tag_mask & tag_mask) {
         wm_global.client_list.active_client = wm_global.client_list.head_client;
@@ -101,4 +101,29 @@ void wm_change_master_width(int percent) {
         wm_global.master_width = 95;
     }
     wm_clients_arrange();
+}
+
+void move_tag_mask_to_next_monitor() {
+    wm_monitor_t *monitor = wm_get_monitor(wm_global.tag_mask);
+    if (!monitor || !monitor->next) {
+        return;
+    }
+    monitor->tag_mask = monitor->tag_mask ^ wm_global.tag_mask;
+    monitor->next->tag_mask = monitor->next->tag_mask ^ wm_global.tag_mask;
+    wm_clients_arrange();
+}
+
+void move_tag_mask_to_prev_monitor() {
+    logs("START move tag mask to prev monitor");
+    wm_monitor_t *monitor = wm_get_monitor(wm_global.tag_mask);
+    logs("found monitor");
+    if (!monitor || !monitor->prev) {
+        logs("STOP move tag mask to prev monitor");
+        return;
+    }
+    logs("checked");
+    monitor->tag_mask = monitor->tag_mask ^ wm_global.tag_mask;
+    monitor->prev->tag_mask = monitor->prev->tag_mask ^ wm_global.tag_mask;
+    wm_clients_arrange();
+    logs("STOP move tag mask to prev monitor");
 }
