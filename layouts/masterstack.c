@@ -11,7 +11,7 @@ void masterstack(wm_monitor_t * monitor) {
         int master_height = monitor->h;
         int master_width = (int) (((float)monitor->w) * ((float)wm_global.master_width)/100);
         int slave_width = monitor->w - master_width;
-        wm_client_draw(client, 0, 0, master_width, master_height, true);
+        wm_client_draw(client, monitor->x, monitor->y, master_width, master_height, true);
         for (int i = 0; i < num_of_slaves; i++) {
             client = wm_client_get_next(client);
             wm_client_draw(client, master_width+monitor->x, i*slave_height+monitor->y, slave_width, slave_height, true);

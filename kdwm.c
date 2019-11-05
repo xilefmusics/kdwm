@@ -366,7 +366,6 @@ void wm_monitor_update() {
         // free new monitor information
         XFree(scr_info);
     } else {
-        logs("Xinerama is not active");
     }
 }
 
@@ -401,14 +400,11 @@ void wm_run() {
             case ConfigureRequest:
                 wm_on_configure_request(&event.xconfigure);
                 break;
-            default:
-                logsi("EVENT", event.type);
         }
     }
 }
 
 void wm_init() {
-    logs("START");
     wm_global.running = false;
     wm_global.tag_mask = 1;
     wm_global.client_list.size = 0;

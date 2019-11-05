@@ -114,16 +114,11 @@ void move_tag_mask_to_next_monitor() {
 }
 
 void move_tag_mask_to_prev_monitor() {
-    logs("START move tag mask to prev monitor");
     wm_monitor_t *monitor = wm_get_monitor(wm_global.tag_mask);
-    logs("found monitor");
     if (!monitor || !monitor->prev) {
-        logs("STOP move tag mask to prev monitor");
         return;
     }
-    logs("checked");
     monitor->tag_mask = monitor->tag_mask ^ wm_global.tag_mask;
     monitor->prev->tag_mask = monitor->prev->tag_mask ^ wm_global.tag_mask;
     wm_clients_arrange();
-    logs("STOP move tag mask to prev monitor");
 }

@@ -14,7 +14,6 @@ enum {MASTERSTACK, MONOCLE};
 static void (*layouts[])() =  {masterstack, monocle};
 
 // MODULES
-#include "modules/logger.c"
 #include "modules/basic_user_control.c"
 #include "modules/open_windows_on_start.c"
 #include "modules/battery_visualizer.c"
@@ -26,13 +25,9 @@ static void (*wm_on_tini[])() = {};
 // KEYBINDINGS
 #define MODKEY Mod4Mask
 static wm_keybinding_t wm_keybindings[] = {
+    // dev
     {MODKEY|ControlMask, XK_b, show_battery, NONE, NULL},
     {MODKEY|ControlMask, XK_m, wm_monitor_update, NONE, NULL},
-    {0, XF86XK_AudioLowerVolume,     wm_spawn, STRING, "amixer set Master 5%-"},
-    {0, XF86XK_AudioRaiseVolume,     wm_spawn, STRING, "amixer set Master 5%+"},
-    {0, XF86XK_AudioMute,        wm_spawn, STRING, "amixer set Master toggle"},
-    {MODKEY, XK_s, wm_spawn, STRING, "supertuxkart"},
-    {MODKEY, XK_p, log_state, NONE, NULL},
     // stop
     {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
     // spawn
