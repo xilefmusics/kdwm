@@ -5,7 +5,6 @@ static const int MASTER_WIDTH = 50;
 static const int BORDER_WIDTH = 1;
 static const char* BORDER_COLOR_ACTIVE = "#61afef";
 static const char* BORDER_COLOR_PASSIVE = "#21252b";
-static const int FULLSCREEN_TAG_MASK = 512;
 
 // LAYOUTS
 #include "layouts/masterstack.c"
@@ -15,25 +14,21 @@ static void (*layouts[])() =  {masterstack, monocle};
 
 // MODULES
 #include "modules/basic_user_control.c"
-#include "modules/open_windows_on_start.c"
-#include "modules/battery_visualizer.c"
 
 // ON_START AND ON_STOP
-static void (*wm_on_init[])() = {open_windows_on_start, battery_visualizer_init};
+static void (*wm_on_init[])() = {};
 static void (*wm_on_tini[])() = {};
 
 // KEYBINDINGS
 #define MODKEY Mod4Mask
 static wm_keybinding_t wm_keybindings[] = {
-    // dev
-    {MODKEY|ControlMask, XK_b, show_battery, NONE, NULL},
-    {MODKEY|ControlMask, XK_m, wm_monitor_update, NONE, NULL},
     // stop
     {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
     // spawn
     {MODKEY, XK_Return, wm_spawn, STRING, "st"},
     {MODKEY, XK_r, wm_spawn, STRING, "dmenu_run"},
     // monitors
+    {MODKEY|ControlMask, XK_m, wm_monitor_update, NONE, NULL},
     {MODKEY, XK_u, move_tag_mask_to_next_monitor, NONE, NULL},
     {MODKEY, XK_i, move_tag_mask_to_prev_monitor, NONE, NULL},
     // clients
@@ -61,7 +56,6 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY, XK_8, wm_retag, INTEGER, "128"},
     {MODKEY, XK_9, wm_retag, INTEGER, "256"},
     {MODKEY, XK_0, wm_retag, INTEGER, "-1"},
-    {MODKEY, XK_f, wm_retag, INTEGER, "512"},
     // move client to tag
     {MODKEY|ShiftMask, XK_1, wm_set_tag_mask_of_focused_client, INTEGER, "1"},
     {MODKEY|ShiftMask, XK_2, wm_set_tag_mask_of_focused_client, INTEGER, "2"},

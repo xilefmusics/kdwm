@@ -104,6 +104,7 @@ void wm_change_master_width(int percent) {
 }
 
 void move_tag_mask_to_next_monitor() {
+    wm_monitor_update();
     wm_monitor_t *monitor = wm_get_monitor(wm_global.tag_mask);
     if (!monitor || !monitor->next) {
         return;
@@ -114,6 +115,7 @@ void move_tag_mask_to_next_monitor() {
 }
 
 void move_tag_mask_to_prev_monitor() {
+    wm_monitor_update();
     wm_monitor_t *monitor = wm_get_monitor(wm_global.tag_mask);
     if (!monitor || !monitor->prev) {
         return;
