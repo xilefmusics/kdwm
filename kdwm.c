@@ -11,6 +11,15 @@ void wm_on_map_request(XMapRequestEvent *event) {
     wm_client_manage(event->window);
 }
 
+void wm_on_configure_request(XConfigureEvent *event) {
+    XWindowChanges changes;
+    changes.x = event->x;
+    changes.y = event->y;
+    changes.width = event->width;
+    changes.height = event->height;
+    XConfigureWindow(wm_global.display, event->window, 15, &changes);
+}
+
 void wm_on_unmap_notify(XUnmapEvent *event) {
     if (!event->send_event) {
         return;
@@ -42,114 +51,12 @@ void wm_on_key_press(XKeyEvent *event) {
     }
 }
 
-// user controll
-void wm_focus_next() {
-    wm_client_t *client = wm_global.client_list.active_client;
-    wm_client_focus(wm_client_get_next(wm_global.client_list.active_client));
-    wm_client_set_border_color(client);
-    wm_client_set_border_color(wm_global.client_list.active_client);
-}
-
-void wm_focus_prev() {
-    wm_client_t *client = wm_global.client_list.active_client;
-    wm_client_focus(wm_client_get_prev(wm_global.client_list.active_client));
-    wm_client_set_border_color(client);
-    wm_client_set_border_color(wm_global.client_list.active_client);
-}
-
-void wm_kill_active_client() {
-    if (!wm_global.client_list.active_client) {
-        return;
-    }
-    wm_client_send_XEvent(wm_global.client_list.active_client, wm_global.atoms[WM_DELETE_WINDOW]);
-}
-
-void wm_spawn(char *name) {
-    char buffer[256];
-    strcpy(buffer, name);
-    strcat(buffer, " &");
-    system(buffer);
-}
-
-void wm_set_tag_mask_of_focused_client(int tag_mask){
-    if (wm_global.client_list.active_client) {
-        wm_clients_count(tag_mask);
-        wm_global.client_list.active_client->tag_mask = tag_mask;
-        if (!(tag_mask & wm_global.tag_mask)) {
-            XUnmapWindow(wm_global.display, wm_global.client_list.active_client->window);
-            wm_client_find_new_focus(wm_global.client_list.active_client);
-            wm_clients_arrange();
-        }
-    }
-}
-
-void wm_add_tag_to_tag_mask(int tag) {
-    wm_retag(wm_global.tag_mask | tag);
-}
-
-void wm_add_tag_to_client(int tag) {
-    if (wm_global.client_list.active_client) {
-        wm_global.client_list.active_client->tag_mask = wm_global.client_list.active_client->tag_mask | tag;
-    }
-}
-
-void wm_retag(int tag_mask) {
-    if (tag_mask == wm_global.tag_mask) {
-        return;
-    }
-    wm_clients_unmap();
-    wm_global.tag_mask = tag_mask;
-    if (wm_global.client_list.head_client && wm_global.client_list.head_client->tag_mask & tag_mask) {
-        wm_global.client_list.active_client = wm_global.client_list.head_client;
-    } else {
-        wm_global.client_list.active_client = wm_client_get_next(wm_global.client_list.head_client);
-    }
-    wm_clients_map();
-    wm_clients_arrange();
-    wm_client_focus(wm_global.client_list.active_client);
-}
-
-void wm_rehead() {
-    wm_client_rehead(wm_global.client_list.active_client);
-    wm_clients_arrange();
-}
-
-void wm_client_up() {
-    wm_client_t *prev = wm_client_get_prev(wm_global.client_list.active_client);
-    if (prev) {
-        wm_client_swap(prev, wm_global.client_list.active_client);
-        wm_clients_arrange();
-    }
-}
-
-void wm_client_down() {
-    wm_client_t *next = wm_client_get_next(wm_global.client_list.active_client);
-    if (next) {
-        wm_client_swap(wm_global.client_list.active_client, next);
-        wm_clients_arrange();
-    }
-}
-
-void wm_change_layout(int layout) {
-    wm_global.current_layout = layout;
-    wm_clients_arrange();
-}
-
-void wm_change_master_width(int percent) {
-    if (percent == 0) {
-        wm_global.master_width = MASTER_WIDTH;
-    }
-    wm_global.master_width = wm_global.master_width + percent;
-    if (wm_global.master_width < 5) {
-        wm_global.master_width = 5;
-    } else if (wm_global.master_width > 95) {
-        wm_global.master_width = 95;
-    }
-    wm_clients_arrange();
-}
-
 // client
 void wm_client_add(Window window) {
+    wm_client_t *client = wm_client_find(window);
+    if (client) {
+        return;
+    }
     wm_client_t *new = malloc(sizeof(wm_client_t));
     new->window = window;
     new->prev = NULL;
@@ -281,7 +188,8 @@ int wm_clients_count(){
 }
 
 void wm_clients_arrange() {
-    (*layouts[wm_global.current_layout])();
+    wm_monitor_update();
+    (*layouts[wm_global.current_layout])(wm_get_monitor(wm_global.tag_mask));
 }
 
 void wm_clients_map() {
@@ -296,34 +204,42 @@ void wm_clients_map() {
     } while (client = client->next);
 }
 
-void wm_clients_unmap() {
+void wm_clients_unmap(int new_tag_mask, int old_tag_mask) {
+    wm_monitor_t *monitor = wm_get_monitor(new_tag_mask);
     wm_client_t *client = wm_global.client_list.head_client;
     if (!client) {
         return;
     }
     do {
-        if (client->tag_mask & wm_global.tag_mask) {
+        if (client->tag_mask & old_tag_mask & monitor->tag_mask) {
             XUnmapWindow(wm_global.display, client->window);
         }
     } while (client = client->next);
 }
 
-void wm_client_draw(wm_client_t *client, int x, int y, int w, int h) {
+void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border) {
+    client->x = x;
+    client->y = y;
+    client->w = w;
+    client->h = h;
     XWindowChanges changes;
     changes.x = x;
     changes.y = y;
-    changes.width = w-2*wm_global.border_width;
-    changes.height = h-2*wm_global.border_width;
-    changes.border_width = wm_global.border_width;
-    XConfigureWindow(wm_global.display, client->window, 31, &changes);
-    wm_client_set_border_color(client);
+    if (border) {
+        changes.width = w-2*wm_global.border_width;
+        changes.height = h-2*wm_global.border_width;
+        changes.border_width = wm_global.border_width;
+        XConfigureWindow(wm_global.display, client->window, 31, &changes);
+        wm_client_set_border_color(client);
+    } else {
+        changes.width = w;
+        changes.height = h;
+        changes.border_width = 0;
+        XConfigureWindow(wm_global.display, client->window, 31, &changes);
+    }
 }
 
 void wm_client_manage(Window window) {
-    wm_client_t *client = wm_client_find(window);
-    if (client) {
-        return;
-    }
     XMapWindow(wm_global.display, window);
     wm_client_add(window);
     wm_client_focus(wm_global.client_list.head_client);
@@ -362,7 +278,109 @@ void wm_client_set_border_color(wm_client_t *client) {
     }
 }
 
+// monitor
+wm_monitor_t *wm_get_monitor(int tag_mask) {
+    wm_monitor_t *monitor = wm_global.monitor_list.head_monitor;
+    while(monitor) {
+        if (monitor->tag_mask & tag_mask) {
+            return monitor;
+        }
+        monitor = monitor->next;
+    }
+    return wm_global.monitor_list.head_monitor;
+}
+
+void wm_monitor_update() {
+    if (XineramaIsActive(wm_global.display)) {
+        // load new monitor information
+        int number;
+        XineramaScreenInfo *scr_info = XineramaQueryScreens(wm_global.display, &number);
+        // search for removed monitors and update of not removed
+        wm_monitor_t *monitor = wm_global.monitor_list.head_monitor;
+        wm_monitor_t *next_monitor;
+        bool found_monitor;
+        while(monitor) {
+            found_monitor = false;
+            for (int i = 0; i < number; i++) {
+                if (scr_info[i].x_org == monitor->x && scr_info[i].y_org == monitor->y) {
+                    found_monitor = true;
+                    // update monitor
+                    monitor->w = scr_info[i].width;
+                    monitor->h = scr_info[i].height;
+                }
+            }
+            next_monitor = monitor->next;
+            if (!found_monitor) {
+                // delete monitor
+                if (monitor->next) {
+                    monitor->next->prev = monitor->prev;
+                }
+                if (monitor->prev) {
+                    monitor->prev->next = monitor->next;
+                }
+                wm_global.monitor_list.size--;
+                wm_global.monitor_list.head_monitor->tag_mask = wm_global.monitor_list.head_monitor->tag_mask | monitor->tag_mask;
+                if (monitor == wm_global.monitor_list.head_monitor) {
+                    wm_global.monitor_list.head_monitor = monitor->next;
+                }
+                free(monitor);
+            }
+            monitor = next_monitor;
+        }
+        // search for new monitors
+        for (int i = 0; i < number; i++) {
+            monitor = wm_global.monitor_list.head_monitor;
+            if (!monitor) {
+                    // add monitor
+                    next_monitor = malloc(sizeof(wm_monitor_t));
+                    next_monitor->x = scr_info[i].x_org;
+                    next_monitor->y = scr_info[i].y_org;
+                    next_monitor->w = scr_info[i].width;
+                    next_monitor->h = scr_info[i].height;
+                    next_monitor->tag_mask = -1;
+                    next_monitor->next = NULL;
+                    next_monitor->prev = NULL;
+                    wm_global.monitor_list.size = 1;
+                    wm_global.monitor_list.head_monitor = next_monitor;
+            }
+            while (monitor) {
+                if (monitor->x == scr_info[i].x_org && monitor->y == scr_info[i].y_org) {
+                    break;
+                }
+                if (monitor->next == NULL) {
+                    // add monitor
+                    next_monitor = malloc(sizeof(wm_monitor_t));
+                    next_monitor->x = scr_info[i].x_org;
+                    next_monitor->y = scr_info[i].y_org;
+                    next_monitor->w = scr_info[i].width;
+                    next_monitor->h = scr_info[i].height;
+                    next_monitor->tag_mask = 0;
+                    next_monitor->next = NULL;
+                    next_monitor->prev = monitor;
+                    monitor->next = next_monitor;
+                    wm_global.monitor_list.size++;
+                    break;
+                }
+                monitor = monitor->next;
+            }
+        }
+        // free new monitor information
+        XFree(scr_info);
+    } else {
+    }
+}
+
 // basic functions
+void wm_keys_grab() {
+    KeyCode keycode;
+    XUngrabButton(wm_global.display, AnyKey, AnyModifier, wm_global.root_window);
+    for (int i = 0; i < LENGTH(wm_keybindings); i++) {
+        if (keycode = XKeysymToKeycode(wm_global.display, wm_keybindings[i].keysym)) {
+            XGrabKey(wm_global.display, keycode,  wm_keybindings[i].mod, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
+        }
+    }
+}
+
 void wm_run() {
     XEvent event;
     XSync(wm_global.display, False);
@@ -379,6 +397,9 @@ void wm_run() {
                 break;
             case KeyPress:
                 wm_on_key_press(&event.xkey);
+                break;
+            case ConfigureRequest:
+                wm_on_configure_request(&event.xconfigure);
                 break;
         }
     }
@@ -402,6 +423,9 @@ void wm_init() {
     wm_global.screen_width = DisplayWidth(wm_global.display, wm_global.screen);
     wm_global.screen_height = DisplayHeight(wm_global.display, wm_global.screen);
 
+    // init monitor list
+    wm_monitor_update();
+
     // init root window
     wm_global.root_window = RootWindow(wm_global.display, wm_global.screen);
 
@@ -412,31 +436,21 @@ void wm_init() {
     XSelectInput(wm_global.display, wm_global.root_window, SubstructureRedirectMask | SubstructureNotifyMask | KeyPressMask);
 
     // grab all key events while MODKEY is pressed
-    XGrabKey(wm_global.display, AnyKey, MODKEY, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
-
-    // add windows who are actually open
-    Window root_return, parent_return, *children_return;
-    unsigned int nchildren_return;
-    bool client_added = false;
-    if (XQueryTree(wm_global.display, wm_global.root_window, &root_return, &parent_return, &children_return, &nchildren_return)) {
-        for (int i = 0; i < nchildren_return; i++) {
-            wm_client_add(children_return[i]);
-            client_added = true;
-        }
-        if (client_added) {
-            wm_clients_arrange();
-            wm_client_focus(wm_global.client_list.head_client);
-        }
-    }
+    wm_keys_grab();
 
     // get atoms
     wm_global.atoms[WM_PROTOCOLS] = XInternAtom(wm_global.display, "WM_PROTOCOLS", false);
 	wm_global.atoms[WM_DELETE_WINDOW] = XInternAtom(wm_global.display, "WM_DELETE_WINDOW", false);
 
     // init colors
-    Colormap colormap = XCreateColormap(wm_global.display, wm_global.root_window, XDefaultVisual(wm_global.display, wm_global.screen), AllocNone);
-    XAllocNamedColor(wm_global.display, colormap, BORDER_COLOR_ACTIVE, &wm_global.border_color_active, &wm_global.border_color_active);
-    XAllocNamedColor(wm_global.display, colormap, BORDER_COLOR_PASSIVE, &wm_global.border_color_passive, &wm_global.border_color_passive);
+    wm_global.colormap = XCreateColormap(wm_global.display, wm_global.root_window, XDefaultVisual(wm_global.display, wm_global.screen), AllocNone);
+    XAllocNamedColor(wm_global.display, wm_global.colormap, BORDER_COLOR_ACTIVE, &wm_global.border_color_active, &wm_global.border_color_active);
+    XAllocNamedColor(wm_global.display, wm_global.colormap, BORDER_COLOR_PASSIVE, &wm_global.border_color_passive, &wm_global.border_color_passive);
+
+    // init modules
+    for (int i = 0; i < LENGTH(wm_on_init); i++) {
+        wm_on_init[i]();
+    }
 }
 
 void wm_start() {
@@ -450,6 +464,11 @@ void wm_stop() {
 }
 
 void wm_tini() {
+    // tini modules
+    for (int i = 0; i < LENGTH(wm_on_tini); i++) {
+        wm_on_tini[i]();
+    }
+    // cloes connection to X-Server
     XCloseDisplay(wm_global.display);
 }
 
