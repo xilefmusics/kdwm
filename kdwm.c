@@ -188,6 +188,7 @@ int wm_clients_count(){
 }
 
 void wm_clients_arrange() {
+    wm_monitor_update();
     (*layouts[wm_global.current_layout])(wm_get_monitor(wm_global.tag_mask));
 }
 
@@ -203,14 +204,13 @@ void wm_clients_map() {
     } while (client = client->next);
 }
 
-void wm_clients_unmap(int new_tag_mask, int old_tag_mask) {
-    wm_monitor_t *monitor = wm_get_monitor(new_tag_mask);
+void wm_clients_unmap(wm_monitor_t *monitor) {
     wm_client_t *client = wm_global.client_list.head_client;
     if (!client) {
         return;
     }
     do {
-        if (client->tag_mask & old_tag_mask & monitor->tag_mask) {
+        if (client->tag_mask & monitor->active_tag_mask) {
             XUnmapWindow(wm_global.display, client->window);
         }
     } while (client = client->next);
@@ -337,6 +337,7 @@ void wm_monitor_update() {
                     next_monitor->w = scr_info[i].width;
                     next_monitor->h = scr_info[i].height;
                     next_monitor->tag_mask = -1;
+                    next_monitor->active_tag_mask = 0;
                     next_monitor->next = NULL;
                     next_monitor->prev = NULL;
                     wm_global.monitor_list.size = 1;
@@ -354,6 +355,7 @@ void wm_monitor_update() {
                     next_monitor->w = scr_info[i].width;
                     next_monitor->h = scr_info[i].height;
                     next_monitor->tag_mask = 0;
+                    next_monitor->active_tag_mask = 0;
                     next_monitor->next = NULL;
                     next_monitor->prev = monitor;
                     monitor->next = next_monitor;

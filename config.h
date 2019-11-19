@@ -14,6 +14,7 @@ static void (*layouts[])() =  {masterstack, monocle};
 
 // MODULES
 #include "modules/basic_user_control.c"
+#include "modules/logger.c"
 
 // ON_START AND ON_STOP
 static void (*wm_on_init[])() = {};
@@ -44,7 +45,7 @@ static wm_keybinding_t wm_keybindings[] = {
     // change master width
     {MODKEY, XK_h, wm_change_master_width, INTEGER, "-5"},
     {MODKEY, XK_l, wm_change_master_width, INTEGER, "5"},
-    {MODKEY, XK_z, wm_change_master_width, INTEGER, "0"},
+    {MODKEY, XK_g, wm_change_master_width, INTEGER, "0"},
     // switch tag
     {MODKEY, XK_1, wm_retag, INTEGER, "1"},
     {MODKEY, XK_2, wm_retag, INTEGER, "2"},
