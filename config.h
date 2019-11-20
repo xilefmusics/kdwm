@@ -3,8 +3,8 @@
 // VARIABLES
 static const int MASTER_WIDTH = 50;
 static const int BORDER_WIDTH = 1;
-static const char* BORDER_COLOR_ACTIVE = "#61afef";
-static const char* BORDER_COLOR_PASSIVE = "#21252b";
+static const char* BORDER_COLOR_ACTIVE = "#83a598";
+static const char* BORDER_COLOR_PASSIVE = "#282828";
 
 // LAYOUTS
 #include "layouts/masterstack.c"
