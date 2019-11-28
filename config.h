@@ -13,11 +13,12 @@ enum {MASTERSTACK, MONOCLE};
 static void (*layouts[])() =  {masterstack, monocle};
 
 // MODULES
-#include "modules/basic_user_control.c"
 #include "modules/logger.c"
+#include "modules/basic_user_control.c"
+#include "modules/fucking_java.c"
 
 // ON_START AND ON_STOP
-static void (*wm_on_init[])() = {};
+static void (*wm_on_init[])() = {fucking_java};
 static void (*wm_on_tini[])() = {};
 
 // KEYBINDINGS

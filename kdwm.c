@@ -244,6 +244,8 @@ void wm_client_manage(Window window) {
     wm_client_focus(wm_global.client_list.head_client);
     wm_global.client_list.active_client->tag_mask = wm_global.tag_mask;
     wm_clients_arrange();
+    wm_client_t *c = wm_global.client_list.active_client;
+    XMoveResizeWindow(wm_global.display, c->window, c->x, c->y, c->w, c->h);
 }
 
 void wm_client_unmanage(Window window) {
