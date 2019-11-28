@@ -1,5 +1,5 @@
 #include <X11/Xatom.h>
-void fucking_java() {
+void cancer() {
 	Atom netwmname = XInternAtom(wm_global.display, "_NET_WM_NAME", false);
 	Atom utf8_string = XInternAtom(wm_global.display, "UTF8_STRING", false);
 	Atom netwmcheck = XInternAtom(wm_global.display, "_NET_SUPPORTING_WM_CHECK", false);
