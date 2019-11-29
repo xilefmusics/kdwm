@@ -457,7 +457,6 @@ void wm_init() {
     XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_WM_NAME], wm_global.atoms[UTF8_STRING], 8, PropModeReplace, "kdwm", 4);
 	XSync(wm_global.display, false);
 
-
     // init modules
     for (int i = 0; i < LENGTH(wm_on_init); i++) {
         wm_on_init[i]();
