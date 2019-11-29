@@ -8,6 +8,7 @@
 #include <X11/extensions/Xinerama.h>
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
+#include <X11/Xatom.h>
 
 // makros
 #define LENGTH(X)               (sizeof X / sizeof X[0])
@@ -15,7 +16,7 @@
 // definitions
 typedef enum {NONE, STRING, INTEGER} wm_arg_types_t;
 
-enum {WM_PROTOCOLS, WM_DELETE_WINDOW};
+enum {WM_PROTOCOLS, WM_DELETE_WINDOW, _NET_WM_NAME, _NET_SUPPORTING_WM_CHECK, UTF8_STRING};
 
 typedef struct wm_client {
     Window window;
@@ -53,7 +54,7 @@ typedef struct wm_global {
     int tag_mask;
     int master_width;
     int border_width;
-    Atom atoms[2];
+    Atom atoms[5];
     wm_client_list_t client_list;
     wm_monitor_list_t monitor_list;
     int current_layout;

@@ -443,11 +443,20 @@ void wm_init() {
     // get atoms
     wm_global.atoms[WM_PROTOCOLS] = XInternAtom(wm_global.display, "WM_PROTOCOLS", false);
 	wm_global.atoms[WM_DELETE_WINDOW] = XInternAtom(wm_global.display, "WM_DELETE_WINDOW", false);
+	wm_global.atoms[_NET_WM_NAME] = XInternAtom(wm_global.display, "_NET_WM_NAME", false);
+	wm_global.atoms[_NET_SUPPORTING_WM_CHECK] = XInternAtom(wm_global.display, "_NET_SUPPORTING_WM_CHECK", false);
+	wm_global.atoms[UTF8_STRING] = XInternAtom(wm_global.display, "UTF8_STRING", false);
 
     // init colors
     wm_global.colormap = XCreateColormap(wm_global.display, wm_global.root_window, XDefaultVisual(wm_global.display, wm_global.screen), AllocNone);
     XAllocNamedColor(wm_global.display, wm_global.colormap, BORDER_COLOR_ACTIVE, &wm_global.border_color_active, &wm_global.border_color_active);
     XAllocNamedColor(wm_global.display, wm_global.colormap, BORDER_COLOR_PASSIVE, &wm_global.border_color_passive, &wm_global.border_color_passive);
+
+    // set wm name
+	XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_SUPPORTING_WM_CHECK], XA_WINDOW, 32, PropModeReplace, (unsigned char *)&wm_global.root_window, 1);
+    XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_WM_NAME], wm_global.atoms[UTF8_STRING], 8, PropModeReplace, "kdwm", 4);
+	XSync(wm_global.display, false);
+
 
     // init modules
     for (int i = 0; i < LENGTH(wm_on_init); i++) {
