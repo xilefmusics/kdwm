@@ -414,7 +414,6 @@ void wm_init() {
     wm_global.client_list.head_client = NULL;
     wm_global.master_width = MASTER_WIDTH;
     wm_global.border_width = BORDER_WIDTH;
-    wm_global.tag_mask = 1;
     wm_global.current_layout = MASTERSTACK;
 
     // open display (connection to X-Server)
@@ -427,6 +426,7 @@ void wm_init() {
 
     // init monitor list
     wm_monitor_update();
+    wm_get_monitor(wm_global.tag_mask)->active_tag_mask = wm_global.tag_mask;
 
     // init root window
     wm_global.root_window = RootWindow(wm_global.display, wm_global.screen);
