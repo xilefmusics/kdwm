@@ -2,7 +2,7 @@
 
 // VARIABLES
 static const int MASTER_WIDTH = 50;
-static const int BORDER_WIDTH = 1;
+static const int BORDER_WIDTH = 2;
 static const char* BORDER_COLOR_ACTIVE = "#83a598";
 static const char* BORDER_COLOR_PASSIVE = "#282828";
 
@@ -14,6 +14,7 @@ static void (*layouts[])() =  {masterstack, monocle};
 
 // MODULES
 #include "modules/basic_user_control.c"
+#include "modules/backlight_controler.c"
 
 // ON_START AND ON_STOP
 static void (*wm_on_init[])() = {};
@@ -27,6 +28,11 @@ static wm_keybinding_t wm_keybindings[] = {
     // spawn
     {MODKEY, XK_Return, wm_spawn, STRING, "st"},
     {MODKEY, XK_r, wm_spawn, STRING, "dmenu_run"},
+    {MODKEY, XK_c, wm_spawn, STRING, "chromium"},
+    {MODKEY, XK_e, wm_spawn, STRING, "st -e ranger"},
+    {MODKEY, XK_s, wm_spawn, STRING, "i3lock -c 000000 && systemctl suspend"},
+    {0, XF86XK_MonBrightnessDown, brigthness_decrease, NONE, NULL},
+    {0, XF86XK_MonBrightnessUp, brightness_increase, NONE, NULL},
     // monitors
     {MODKEY|ControlMask, XK_m, wm_monitor_update, NONE, NULL},
     {MODKEY, XK_u, move_tag_mask_to_next_monitor, NONE, NULL},
