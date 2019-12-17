@@ -1,26 +1,25 @@
-static int pertag_layouts[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-static int pertag_master_widths[9] = {MASTER_WIDTH, MASTER_WIDTH, MASTER_WIDTH, MASTER_WIDTH, MASTER_WIDTH, MASTER_WIDTH, MASTER_WIDTH, MASTER_WIDTH, MASTER_WIDTH};
+static int pertag_layouts[NUM_OF_TAGS] = {0};
+static int pertag_master_widths[NUM_OF_TAGS] = {0};
+static wm_client_t *pertag_active_client[NUM_OF_TAGS] = {0};
 
 int pertag_get_index(int tag_mask) {
-    switch (tag_mask) {
-        case 1: return 0;
-        case 2: return 1;
-        case 4: return 2;
-        case 8: return 3;
-        case 16: return 4;
-        case 32: return 5;
-        case 64: return 6;
-        case 128: return 7;
-        case 256: return 8;
-        default: return 9;
+    int index = 0;
+    while (tag_mask && index < NUM_OF_TAGS) {
+        ++index;
+        tag_mask = tag_mask >> 1;
     }
 }
 
 void pertag_configure(int tag_mask) {
     pertag_layouts[pertag_get_index(wm_global.tag_mask)] = wm_global.current_layout;
     pertag_master_widths[pertag_get_index(wm_global.tag_mask)] = wm_global.master_width;
+    pertag_active_client[pertag_get_index(wm_global.tag_mask)] = wm_global.client_list.active_client;
     wm_global.current_layout = pertag_layouts[pertag_get_index(tag_mask)];
     wm_global.master_width = pertag_master_widths[pertag_get_index(tag_mask)];
+    wm_global.client_list.active_client = pertag_active_client[pertag_get_index(tag_mask)];
+    if (wm_global.master_width == 0) {
+        wm_global.master_width = MASTER_WIDTH;
+    }
 }
 
 void pertag_retag(int tag_mask) {

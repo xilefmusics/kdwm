@@ -6,6 +6,9 @@ static const int BORDER_WIDTH = 1;
 static const char* BORDER_COLOR_ACTIVE = "#83a598";
 static const char* BORDER_COLOR_PASSIVE = "#282828";
 
+// MODULE VARIABLES
+#define NUM_OF_TAGS 9
+
 // LAYOUTS
 #include "layouts/masterstack.c"
 #include "layouts/monocle.c"
