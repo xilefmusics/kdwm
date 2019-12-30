@@ -34,6 +34,9 @@ void log_state() {
     // log
     fprintf(fp, "NEW STATE:\n");
     fprintf(fp, "current_tagmask: %d\n", wm_global.tag_mask);
+    if (!wm_global.client_list.active_client) {
+        fprintf(fp, "active client is null\n");
+    }
     // log client list
     wm_client_t *client = wm_global.client_list.head_client;
     do {
