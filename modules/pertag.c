@@ -28,17 +28,7 @@ void pertag_retag(int tag_mask) {
     wm_retag(tag_mask);
 }
 
-void pertag_set_tag_mask_of_focused_client(int tag_mask) {
-    pertag_configure(tag_mask);
-    wm_set_tag_mask_of_focused_client(tag_mask);
-}
-
 void pertag_add_tag_to_tag_mask(int tag_mask) {
     pertag_configure(tag_mask);
     wm_add_tag_to_tag_mask(tag_mask);
-}
-
-void pertag_add_tag_to_client(int tag_mask) {
-    pertag_configure(tag_mask);
-    wm_add_tag_to_client(tag_mask);
 }
