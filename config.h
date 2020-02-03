@@ -3,8 +3,7 @@
 // VARIABLES
 static const int MASTER_WIDTH = 50;
 static const int BORDER_WIDTH = 1;
-/* static const char* BORDER_COLOR_ACTIVE = "#83a598"; */
-static const char* BORDER_COLOR_ACTIVE = "#FF0000";
+static const char* BORDER_COLOR_ACTIVE = "#83a598";
 static const char* BORDER_COLOR_PASSIVE = "#282828";
 
 // MODULE VARIABLES
@@ -26,7 +25,7 @@ static void (*wm_on_init[])() = {};
 static void (*wm_on_tini[])() = {};
 
 // KEYBINDINGS
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask
 static wm_keybinding_t wm_keybindings[] = {
     // stop
     {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
