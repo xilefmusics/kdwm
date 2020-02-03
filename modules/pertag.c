@@ -18,9 +18,6 @@ void pertag_configure(int tag_mask) {
     wm_global.current_layout = pertag_layouts[pertag_get_index(tag_mask)];
     wm_global.master_width = pertag_master_widths[pertag_get_index(tag_mask)];
     wm_global.client_list.active_client = pertag_active_client[pertag_get_index(tag_mask)];
-    if (!wm_global.client_list.active_client) {
-        wm_client_focus(wm_client_get_next(NULL));
-    }
     if (wm_global.master_width == 0) {
         wm_global.master_width = MASTER_WIDTH;
     }

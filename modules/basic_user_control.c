@@ -8,7 +8,7 @@ void wm_retag(int tag_mask) {
     }
     wm_global.tag_mask = tag_mask;
     monitor->active_tag_mask = tag_mask;
-    if (wm_global.client_list.active_client && !(wm_global.client_list.active_client->tag_mask & tag_mask)) {
+    if (!wm_global.client_list.active_client || wm_global.client_list.active_client && !(wm_global.client_list.active_client->tag_mask & tag_mask)) {
         wm_global.client_list.active_client = wm_client_get_next(NULL);
     }
     wm_clients_map();

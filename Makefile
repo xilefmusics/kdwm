@@ -14,7 +14,7 @@ install:
 kill:
 	pkill -9 -f Xephyr
 
-run: kdwm_dev
+run: force
 	Xephyr -br -ac -resizeable -no-host-grab :1 &
 	sleep 1
 	DISPLAY=:1 ./kdwm_dev
