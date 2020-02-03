@@ -21,7 +21,7 @@ static void (*layouts[])() =  {masterstack, monocle};
 #include "modules/cancer.c"
 
 // ON_START AND ON_STOP
-static void (*wm_on_init[])() = {};
+static void (*wm_on_init[])() = {cancer};
 static void (*wm_on_tini[])() = {};
 
 // KEYBINDINGS
