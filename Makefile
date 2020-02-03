@@ -11,6 +11,10 @@ clean:
 install:
 	cp -f kdwm_dev /bin/kdwm_dev
 
-run: kdwm
-	clear
-	./kdwm_dev
+kill:
+	pkill -9 -f Xephyr
+
+run: kdwm_dev
+	Xephyr -br -ac -resizeable -no-host-grab :1 &
+	sleep 1
+	DISPLAY=:1 ./kdwm_dev
