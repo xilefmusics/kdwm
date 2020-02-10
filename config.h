@@ -36,6 +36,10 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY, XK_s, wm_spawn, STRING, "i3lock -c 000000 && systemctl suspend"},
     {0, XF86XK_MonBrightnessDown, brigthness_decrease, NONE, NULL},
     {0, XF86XK_MonBrightnessUp, brightness_increase, NONE, NULL},
+    {0, XF86XK_AudioLowerVolume, wm_spawn, STRING, "amixer set Master 5%-"},
+    {0, XF86XK_AudioRaiseVolume, wm_spawn, STRING, "amixer set Master 5%+"},
+    // {0, XF86XK_AudioMicMute, wm_spawn, STRING, "amixer set Capture toggle"},
+    {0, XF86XK_AudioMute, wm_spawn, STRING, "amixer set Master toggle"},
     // monitors
     {MODKEY|ControlMask, XK_m, wm_monitor_update, NONE, NULL},
     {MODKEY, XK_u, move_tag_mask_to_next_monitor, NONE, NULL},
