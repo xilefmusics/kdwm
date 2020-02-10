@@ -6,6 +6,9 @@ static const int BORDER_WIDTH = 2;
 static const char* BORDER_COLOR_ACTIVE = "#83a598";
 static const char* BORDER_COLOR_PASSIVE = "#282828";
 
+// MODULE VARIABLES
+#define NUM_OF_TAGS 9
+
 // LAYOUTS
 #include "layouts/masterstack.c"
 #include "layouts/monocle.c"
@@ -15,12 +18,11 @@ static void (*layouts[])() =  {masterstack, monocle};
 // MODULES
 #include "modules/basic_user_control.c"
 #include "modules/backlight_controler.c"
+#include "modules/pertag.c"
 #include "modules/cancer.c"
 
 // ON_START AND ON_STOP
-static void (*wm_on_init[])() = {
-    &cancer
-};
+static void (*wm_on_init[])() = {cancer};
 static void (*wm_on_tini[])() = {};
 
 // KEYBINDINGS
@@ -59,16 +61,16 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY, XK_l, wm_change_master_width, INTEGER, "5"},
     {MODKEY, XK_g, wm_change_master_width, INTEGER, "0"},
     // switch tag
-    {MODKEY, XK_1, wm_retag, INTEGER, "1"},
-    {MODKEY, XK_2, wm_retag, INTEGER, "2"},
-    {MODKEY, XK_3, wm_retag, INTEGER, "4"},
-    {MODKEY, XK_4, wm_retag, INTEGER, "8"},
-    {MODKEY, XK_5, wm_retag, INTEGER, "16"},
-    {MODKEY, XK_6, wm_retag, INTEGER, "32"},
-    {MODKEY, XK_7, wm_retag, INTEGER, "64"},
-    {MODKEY, XK_8, wm_retag, INTEGER, "128"},
-    {MODKEY, XK_9, wm_retag, INTEGER, "256"},
-    {MODKEY, XK_0, wm_retag, INTEGER, "-1"},
+    {MODKEY, XK_1, pertag_retag, INTEGER, "1"},
+    {MODKEY, XK_2, pertag_retag, INTEGER, "2"},
+    {MODKEY, XK_3, pertag_retag, INTEGER, "4"},
+    {MODKEY, XK_4, pertag_retag, INTEGER, "8"},
+    {MODKEY, XK_5, pertag_retag, INTEGER, "16"},
+    {MODKEY, XK_6, pertag_retag, INTEGER, "32"},
+    {MODKEY, XK_7, pertag_retag, INTEGER, "64"},
+    {MODKEY, XK_8, pertag_retag, INTEGER, "128"},
+    {MODKEY, XK_9, pertag_retag, INTEGER, "256"},
+    {MODKEY, XK_0, pertag_retag, INTEGER, "-1"},
     // move client to tag
     {MODKEY|ShiftMask, XK_1, wm_set_tag_mask_of_focused_client, INTEGER, "1"},
     {MODKEY|ShiftMask, XK_2, wm_set_tag_mask_of_focused_client, INTEGER, "2"},
@@ -81,16 +83,16 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY|ShiftMask, XK_9, wm_set_tag_mask_of_focused_client, INTEGER, "256"},
     {MODKEY|ShiftMask, XK_0, wm_set_tag_mask_of_focused_client, INTEGER, "-1"},
     // display multiple tags
-    {MODKEY|ControlMask, XK_1, wm_add_tag_to_tag_mask, INTEGER, "1"},
-    {MODKEY|ControlMask, XK_2, wm_add_tag_to_tag_mask, INTEGER, "2"},
-    {MODKEY|ControlMask, XK_3, wm_add_tag_to_tag_mask, INTEGER, "4"},
-    {MODKEY|ControlMask, XK_4, wm_add_tag_to_tag_mask, INTEGER, "8"},
-    {MODKEY|ControlMask, XK_5, wm_add_tag_to_tag_mask, INTEGER, "16"},
-    {MODKEY|ControlMask, XK_6, wm_add_tag_to_tag_mask, INTEGER, "32"},
-    {MODKEY|ControlMask, XK_7, wm_add_tag_to_tag_mask, INTEGER, "64"},
-    {MODKEY|ControlMask, XK_8, wm_add_tag_to_tag_mask, INTEGER, "128"},
-    {MODKEY|ControlMask, XK_9, wm_add_tag_to_tag_mask, INTEGER, "256"},
-    {MODKEY|ControlMask, XK_0, wm_add_tag_to_tag_mask, INTEGER, "-1"},
+    {MODKEY|ControlMask, XK_1, pertag_add_tag_to_tag_mask, INTEGER, "1"},
+    {MODKEY|ControlMask, XK_2, pertag_add_tag_to_tag_mask, INTEGER, "2"},
+    {MODKEY|ControlMask, XK_3, pertag_add_tag_to_tag_mask, INTEGER, "4"},
+    {MODKEY|ControlMask, XK_4, pertag_add_tag_to_tag_mask, INTEGER, "8"},
+    {MODKEY|ControlMask, XK_5, pertag_add_tag_to_tag_mask, INTEGER, "16"},
+    {MODKEY|ControlMask, XK_6, pertag_add_tag_to_tag_mask, INTEGER, "32"},
+    {MODKEY|ControlMask, XK_7, pertag_add_tag_to_tag_mask, INTEGER, "64"},
+    {MODKEY|ControlMask, XK_8, pertag_add_tag_to_tag_mask, INTEGER, "128"},
+    {MODKEY|ControlMask, XK_9, pertag_add_tag_to_tag_mask, INTEGER, "256"},
+    {MODKEY|ControlMask, XK_0, pertag_add_tag_to_tag_mask, INTEGER, "-1"},
     // add multiple tags to client
     {MODKEY|ControlMask|ShiftMask, XK_1, wm_add_tag_to_client, INTEGER, "1"},
     {MODKEY|ControlMask|ShiftMask, XK_2, wm_add_tag_to_client, INTEGER, "2"},
