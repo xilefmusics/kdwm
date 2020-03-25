@@ -278,6 +278,17 @@ void wm_client_set_border_color(wm_client_t *client) {
     }
 }
 
+wm_client_t *wm_client_to_window(int window) {
+    wm_client_t *client = wm_global.client_list.active_client;
+    while (client) {
+        if (client->window == window) {
+            return client;
+        }
+        client = client->next;
+    }
+    return NULL;
+}
+
 // monitor
 wm_monitor_t *wm_get_monitor(int tag_mask) {
     wm_monitor_t *monitor = wm_global.monitor_list.head_monitor;
