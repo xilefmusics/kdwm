@@ -278,8 +278,8 @@ void wm_client_set_border_color(wm_client_t *client) {
     }
 }
 
-wm_client_t *wm_client_to_window(int window) {
-    wm_client_t *client = wm_global.client_list.active_client;
+wm_client_t *wm_client_find_from_window(int window) {
+    wm_client_t *client = wm_global.client_list.head_client;
     while (client) {
         if (client->window == window) {
             return client;

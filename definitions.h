@@ -100,7 +100,7 @@ wm_client_t *wm_client_find(Window window);
 void wm_client_manage(Window window);
 void wm_client_unmanage(Window window);
 void wm_client_set_border_color(wm_client_t *client);
-wm_client_t *wm_client_to_window(int window);
+wm_client_t *wm_client_find_from_window(int window);
 
 // monitor
 wm_monitor_t *wm_get_monitor(int tag_mask);
