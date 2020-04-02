@@ -87,15 +87,12 @@ void wm_client_swap(wm_client_t *client1, wm_client_t *client2) {
     if (client1 == wm_global.client_list.head_client) {
         wm_global.client_list.head_client = client2;
     }
-
     wm_client_t *buffer = client1->prev;
     client1->prev = client2;
     client2->prev = buffer;
-
     buffer = client2->next;
     client2->next = client1;
     client1->next = buffer;
-
     if (client2->prev) {
         client2->prev->next = client2;
     }
@@ -157,7 +154,6 @@ void wm_client_focus(wm_client_t *client) {
 void wm_client_find_new_focus(wm_client_t *client) {
     wm_client_t *next = wm_client_get_next(client);
     wm_client_t *prev = wm_client_get_prev(client);
-
     if (next){
         wm_client_focus(next);
     } else if (prev) {
@@ -182,7 +178,7 @@ int wm_clients_count(){
     int result = 0;
     wm_client_t *client = NULL;
     while (client = wm_client_get_next(client)) {
-        result++;
+        ++result;
     }
     return result;
 }
@@ -244,7 +240,6 @@ void wm_client_manage(Window window) {
     wm_client_focus(wm_global.client_list.head_client);
     wm_global.client_list.active_client->tag_mask = wm_global.tag_mask;
     wm_clients_arrange();
-    wm_client_t *c = wm_global.client_list.active_client;
 }
 
 void wm_client_unmanage(Window window) {
@@ -262,9 +257,6 @@ wm_client_t *wm_client_find(Window window) {
     while (client && client->window != window) {
         client = client->next;
     }
-    if (!client) {
-        return NULL;
-    }
     return client;
 }
 
@@ -276,17 +268,6 @@ void wm_client_set_border_color(wm_client_t *client) {
             XSetWindowBorder(wm_global.display, client->window, wm_global.border_color_passive.pixel);
         }
     }
-}
-
-wm_client_t *wm_client_find_from_window(int window) {
-    wm_client_t *client = wm_global.client_list.head_client;
-    while (client) {
-        if (client->window == window) {
-            return client;
-        }
-        client = client->next;
-    }
-    return NULL;
 }
 
 // monitor
@@ -468,7 +449,6 @@ void wm_init() {
     XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_WM_NAME], wm_global.atoms[UTF8_STRING], 8, PropModeReplace, "kdwm", 4);
 	XSync(wm_global.display, false);
 
-
     // init modules
     for (int i = 0; i < LENGTH(wm_on_init); i++) {
         wm_on_init[i]();
@@ -486,11 +466,9 @@ void wm_stop() {
 }
 
 void wm_tini() {
-    // tini modules
     for (int i = 0; i < LENGTH(wm_on_tini); i++) {
         wm_on_tini[i]();
     }
-    // cloes connection to X-Server
     XCloseDisplay(wm_global.display);
 }
 
