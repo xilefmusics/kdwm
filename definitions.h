@@ -60,6 +60,7 @@ typedef struct wm_global {
     int current_layout;
     Colormap colormap;
     XColor border_color_active, border_color_passive;
+    void (*event_handler[LASTEvent])(XEvent *);
 } wm_global_t;
 static wm_global_t wm_global;
 
@@ -74,14 +75,7 @@ typedef struct wm_keybinding {
 // error handler
 int wm_err_detect_other(Display * display, XErrorEvent *event);
 
-// event handler
-void wm_on_map_request(XMapRequestEvent *event);
-void wm_on_configure_request(XConfigureEvent *event);
-void wm_on_unmap_notify(XUnmapEvent *event);
-void wm_on_destroy_notify(XDestroyWindowEvent *event);
-void wm_on_key_press(XKeyEvent *event);
-
-// client list
+// client
 void wm_client_add(Window window);
 void wm_client_delete(wm_client_t *client);
 void wm_client_swap(wm_client_t *client1, wm_client_t *client2);

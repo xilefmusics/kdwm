@@ -16,18 +16,16 @@ static const char* BORDER_COLOR_PASSIVE = "#282828";
 enum {MASTERSTACK, MONOCLE};
 static void (*layouts[])() =  {masterstack, monocle};
 
-// MODULES
-#include "modules/logger.c"
+// MODULES 1
 #include "modules/basic_user_control.c"
+#include "modules/basic_event_handling.c"
 #include "modules/pertag.c"
 #include "modules/cancer.c"
 
-// ON_START AND ON_STOP
-static void (*wm_on_init[])() = {};
-static void (*wm_on_tini[])() = {};
 
 // KEYBINDINGS
-#define MODKEY Mod1Mask
+#define MODKEY Mod1Mask // ALT
+//#define MODKEY Mod4Mask // Super
 static wm_keybinding_t wm_keybindings[] = {
     // stop
     {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
@@ -97,3 +95,10 @@ static wm_keybinding_t wm_keybindings[] = {
     {MODKEY|ControlMask|ShiftMask, XK_9, wm_add_tag_to_client, INTEGER, "256"},
     {MODKEY|ControlMask|ShiftMask, XK_0, wm_add_tag_to_client, INTEGER, "-1"},
 };
+
+// MODULES 2
+#include "modules/basic_key_handling.c"
+
+// ON_START AND ON_STOP
+static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init};
+static void (*wm_on_tini[])() = {};
