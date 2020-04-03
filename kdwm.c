@@ -21,10 +21,9 @@ void wm_on_configure_request(XConfigureEvent *event) {
 }
 
 void wm_on_unmap_notify(XUnmapEvent *event) {
-    if (!event->send_event) {
-        return;
+    if (event->send_event) {
+        wm_client_unmanage(event->window);
     }
-    wm_client_unmanage(event->window);
 }
 
 void wm_on_destroy_notify(XDestroyWindowEvent *event) {
@@ -53,19 +52,18 @@ void wm_on_key_press(XKeyEvent *event) {
 
 // client
 void wm_client_add(Window window) {
-    wm_client_t *client = wm_client_find(window);
-    if (client) {
+    if (wm_client_find(window)) {
         return;
     }
-    wm_client_t *new = malloc(sizeof(wm_client_t));
-    new->window = window;
-    new->prev = NULL;
-    new->tag_mask = wm_global.tag_mask;
+    wm_client_t *client = malloc(sizeof(wm_client_t));
+    client->window = window;
+    client->prev = NULL;
+    client->tag_mask = wm_global.tag_mask;
     if (wm_global.client_list.head_client) {
-        wm_global.client_list.head_client->prev = new;
+        wm_global.client_list.head_client->prev = client;
     }
-    new->next = wm_global.client_list.head_client;
-    wm_global.client_list.head_client = new;
+    client->next = wm_global.client_list.head_client;
+    wm_global.client_list.head_client = client;
     wm_global.client_list.size++;
 }
 
@@ -124,23 +122,21 @@ wm_client_t *wm_client_get_next(wm_client_t *client) {
             return client;
         }
     }
-    while (client) {
-        client = client->next;
-        if (client && client->tag_mask & wm_global.tag_mask) {
-            return client;
-        }
+    if (client) {
+        do {
+            client = client->next;
+        } while (client && !(client->tag_mask & wm_global.tag_mask));
     }
-    return NULL;
+    return client;
 }
 
 wm_client_t *wm_client_get_prev(wm_client_t *client) {
-    while (client) {
-        client = client->prev;
-        if (!client || client->tag_mask & wm_global.tag_mask) {
-            return client;
-        }
+    if (client) {
+        do {
+            client = client->prev;
+        } while ((client && !(client->tag_mask & wm_global.tag_mask)));
     }
-    return NULL;
+    return client;
 }
 
 void wm_client_focus(wm_client_t *client) {
@@ -190,26 +186,22 @@ void wm_clients_arrange() {
 
 void wm_clients_map() {
     wm_client_t *client = wm_global.client_list.head_client;
-    if (!client) {
-        return;
-    }
-    do {
+    while (client) {
         if (client->tag_mask & wm_global.tag_mask) {
             XMapWindow(wm_global.display, client->window);
         }
-    } while (client = client->next);
+        client = client->next;
+    }
 }
 
 void wm_clients_unmap(wm_monitor_t *monitor) {
     wm_client_t *client = wm_global.client_list.head_client;
-    if (!client) {
-        return;
-    }
-    do {
+    while (client) {
         if (client->tag_mask & monitor->active_tag_mask) {
             XUnmapWindow(wm_global.display, client->window);
         }
-    } while (client = client->next);
+        client = client->next;
+    }
 }
 
 void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border) {
@@ -244,12 +236,11 @@ void wm_client_manage(Window window) {
 
 void wm_client_unmanage(Window window) {
     wm_client_t *client = wm_client_find(window);
-    if (!client) {
-        return;
+    if (client) {
+        wm_client_find_new_focus(client);
+        wm_client_delete(client);
+        wm_clients_arrange();
     }
-    wm_client_find_new_focus(client);
-    wm_client_delete(client);
-    wm_clients_arrange();
 }
 
 wm_client_t *wm_client_find(Window window) {
@@ -273,13 +264,10 @@ void wm_client_set_border_color(wm_client_t *client) {
 // monitor
 wm_monitor_t *wm_get_monitor(int tag_mask) {
     wm_monitor_t *monitor = wm_global.monitor_list.head_monitor;
-    while(monitor) {
-        if (monitor->tag_mask & tag_mask) {
-            return monitor;
-        }
+    while(monitor && !(monitor->tag_mask & tag_mask)) {
         monitor = monitor->next;
     }
-    return wm_global.monitor_list.head_monitor;
+    return monitor ? monitor : wm_global.monitor_list.head_monitor;
 }
 
 void wm_monitor_update() {
