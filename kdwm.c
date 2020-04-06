@@ -380,14 +380,15 @@ void wm_init() {
 	XSync(wm_global.display, false);
 
     // test EWMH support
-    enum {_NET_SUPPORTED, _NET_NUMBER_OF_DESKTOPS, _NET_CURRENT_DESKTOP, _NET_DESKTOP_NAMES, _NET_LAST};
+    enum {_NET_SUPPORTED, _NET_NUMBER_OF_DESKTOPS, _NET_CURRENT_DESKTOP, _NET_DESKTOP_NAMES, _NET_DESKTOP_VIEWPORT, _NET_LAST};
     Atom netatom[_NET_LAST];
     netatom[_NET_SUPPORTED] = XInternAtom(wm_global.display, "_NET_SUPPORTED", false);
     netatom[_NET_NUMBER_OF_DESKTOPS] = XInternAtom(wm_global.display, "_NET_NUMBER_OF_DESKTOPS", false);
     netatom[_NET_CURRENT_DESKTOP] = XInternAtom(wm_global.display, "_NET_CURRENT_DESKTOP", false);
     netatom[_NET_DESKTOP_NAMES] = XInternAtom(wm_global.display, "_NET_DESKTOP_NAMES", false);
+    netatom[_NET_DESKTOP_VIEWPORT] = XInternAtom(wm_global.display, "_NET_DESKTOP_VIEWPORT", false);
 
-    long data1[] = {9};
+    long data1[] = {NUM_OF_TAGS};
     XChangeProperty(
                 wm_global.display,
                 wm_global.root_window,
@@ -418,6 +419,17 @@ void wm_init() {
             PropModeReplace,
             (unsigned char *) netatom,
             _NET_LAST
+        );
+    long data3[][2] = {{0, 0}};
+    XChangeProperty(
+            wm_global.display,
+            wm_global.root_window,
+            netatom[_NET_DESKTOP_VIEWPORT],
+            XA_CARDINAL,
+            32,
+            PropModeReplace,
+            (unsigned char *) data3,
+            1
         );
 
 
