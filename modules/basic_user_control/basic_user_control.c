@@ -2,7 +2,7 @@ void wm_retag(int tag_mask) {
     if (tag_mask == wm_global.tag_mask) {
         return;
     }
-    wm_monitor_t *monitor = wm_get_monitor(tag_mask);
+    multimon_monitor_t *monitor = multimon_get_monitor(tag_mask);
     if (tag_mask != monitor->active_tag_mask) {
         wm_clients_unmap(monitor);
     }
@@ -98,8 +98,8 @@ void wm_change_master_width(int percent) {
 }
 
 void move_tag_mask_to_next_monitor() {
-    wm_monitor_update();
-    wm_monitor_t *monitor = wm_get_monitor(wm_global.tag_mask);
+    multimon_monitor_update();
+    multimon_monitor_t *monitor = multimon_get_monitor(wm_global.tag_mask);
     if (monitor && monitor->next) {
         wm_clients_unmap(monitor->next);
         monitor->tag_mask = monitor->tag_mask ^ wm_global.tag_mask;
@@ -111,8 +111,8 @@ void move_tag_mask_to_next_monitor() {
 }
 
 void move_tag_mask_to_prev_monitor() {
-    wm_monitor_update();
-    wm_monitor_t *monitor = wm_get_monitor(wm_global.tag_mask);
+    multimon_monitor_update();
+    multimon_monitor_t *monitor = multimon_get_monitor(wm_global.tag_mask);
     if (monitor && monitor->prev) {
         wm_clients_unmap(monitor->prev);
         monitor->tag_mask = monitor->tag_mask ^ wm_global.tag_mask;

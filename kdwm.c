@@ -136,8 +136,8 @@ int wm_clients_count(){
 }
 
 void wm_clients_arrange() {
-    wm_monitor_update();
-    (*layouts[wm_global.current_layout])(wm_get_monitor(wm_global.tag_mask));
+    multimon_monitor_update();
+    (*layouts[wm_global.current_layout])(multimon_get_monitor(wm_global.tag_mask));
 }
 
 void wm_clients_map() {
@@ -150,7 +150,7 @@ void wm_clients_map() {
     }
 }
 
-void wm_clients_unmap(wm_monitor_t *monitor) {
+void wm_clients_unmap(multimon_monitor_t *monitor) {
     wm_client_t *client = wm_global.client_list.head_client;
     while (client) {
         if (client->tag_mask & monitor->active_tag_mask) {
@@ -217,97 +217,6 @@ void wm_client_set_border_color(wm_client_t *client) {
     }
 }
 
-// monitor
-wm_monitor_t *wm_get_monitor(int tag_mask) {
-    wm_monitor_t *monitor = wm_global.monitor_list.head_monitor;
-    while(monitor && !(monitor->tag_mask & tag_mask)) {
-        monitor = monitor->next;
-    }
-    return monitor ? monitor : wm_global.monitor_list.head_monitor;
-}
-
-void wm_monitor_update() {
-    if (XineramaIsActive(wm_global.display)) {
-        // load new monitor information
-        int number;
-        XineramaScreenInfo *scr_info = XineramaQueryScreens(wm_global.display, &number);
-        // search for removed monitors and update of not removed
-        wm_monitor_t *monitor = wm_global.monitor_list.head_monitor;
-        wm_monitor_t *next_monitor;
-        bool found_monitor;
-        while(monitor) {
-            found_monitor = false;
-            for (int i = 0; i < number; i++) {
-                if (scr_info[i].x_org == monitor->x && scr_info[i].y_org == monitor->y) {
-                    found_monitor = true;
-                    // update monitor
-                    monitor->w = scr_info[i].width;
-                    monitor->h = scr_info[i].height;
-                }
-            }
-            next_monitor = monitor->next;
-            if (!found_monitor) {
-                // delete monitor
-                if (monitor->next) {
-                    monitor->next->prev = monitor->prev;
-                }
-                if (monitor->prev) {
-                    monitor->prev->next = monitor->next;
-                }
-                wm_global.monitor_list.size--;
-                wm_global.monitor_list.head_monitor->tag_mask = wm_global.monitor_list.head_monitor->tag_mask | monitor->tag_mask;
-                if (monitor == wm_global.monitor_list.head_monitor) {
-                    wm_global.monitor_list.head_monitor = monitor->next;
-                }
-                free(monitor);
-            }
-            monitor = next_monitor;
-        }
-        // search for new monitors
-        for (int i = 0; i < number; i++) {
-            monitor = wm_global.monitor_list.head_monitor;
-            if (!monitor) {
-                    // add monitor
-                    next_monitor = malloc(sizeof(wm_monitor_t));
-                    next_monitor->x = scr_info[i].x_org;
-                    next_monitor->y = scr_info[i].y_org;
-                    next_monitor->w = scr_info[i].width;
-                    next_monitor->h = scr_info[i].height;
-                    next_monitor->tag_mask = -1;
-                    next_monitor->active_tag_mask = 0;
-                    next_monitor->next = NULL;
-                    next_monitor->prev = NULL;
-                    wm_global.monitor_list.size = 1;
-                    wm_global.monitor_list.head_monitor = next_monitor;
-            }
-            while (monitor) {
-                if (monitor->x == scr_info[i].x_org && monitor->y == scr_info[i].y_org) {
-                    break;
-                }
-                if (monitor->next == NULL) {
-                    // add monitor
-                    next_monitor = malloc(sizeof(wm_monitor_t));
-                    next_monitor->x = scr_info[i].x_org;
-                    next_monitor->y = scr_info[i].y_org;
-                    next_monitor->w = scr_info[i].width;
-                    next_monitor->h = scr_info[i].height;
-                    next_monitor->tag_mask = 0;
-                    next_monitor->active_tag_mask = 0;
-                    next_monitor->next = NULL;
-                    next_monitor->prev = monitor;
-                    monitor->next = next_monitor;
-                    wm_global.monitor_list.size++;
-                    break;
-                }
-                monitor = monitor->next;
-            }
-        }
-        // free new monitor information
-        XFree(scr_info);
-    } else {
-    }
-}
-
 // basic functions
 
 void wm_run() {
@@ -336,10 +245,6 @@ void wm_init() {
     wm_global.screen = DefaultScreen(wm_global.display);
     wm_global.screen_width = DisplayWidth(wm_global.display, wm_global.screen);
     wm_global.screen_height = DisplayHeight(wm_global.display, wm_global.screen);
-
-    // init monitor list
-    wm_monitor_update();
-    wm_get_monitor(wm_global.tag_mask)->active_tag_mask = wm_global.tag_mask;
 
     // init root window
     wm_global.root_window = RootWindow(wm_global.display, wm_global.screen);

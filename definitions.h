@@ -31,19 +31,6 @@ typedef struct wm_client_list {
     int size;
 } wm_client_list_t;
 
-typedef struct wm_monitor {
-    int x, y, w, h;
-    int tag_mask;
-    int active_tag_mask;
-    struct wm_monitor *next;
-    struct wm_monitor *prev;
-} wm_monitor_t;
-
-typedef struct wm_monitor_list {
-    wm_monitor_t *head_monitor;
-    int size;
-} wm_monitor_list_t;
-
 typedef struct wm_global {
     Display *display;
     Window root_window;
@@ -55,7 +42,6 @@ typedef struct wm_global {
     int border_width;
     Atom atoms[5];
     wm_client_list_t client_list;
-    wm_monitor_list_t monitor_list;
     int current_layout;
     Colormap colormap;
     XColor border_color_active, border_color_passive;
@@ -80,16 +66,12 @@ void wm_client_send_XEvent(wm_client_t *client, Atom atom);
 int wm_clients_count();
 void wm_clients_arrange();
 void wm_clients_map();
-void wm_clients_unmap(wm_monitor_t *monitor);
+void wm_clients_unmap(multimon_monitor_t *monitor);
 void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border);
 wm_client_t *wm_client_find(Window window);
 void wm_client_manage(Window window);
 void wm_client_unmanage(Window window);
 void wm_client_set_border_color(wm_client_t *client);
-
-// monitor
-wm_monitor_t *wm_get_monitor(int tag_mask);
-void wm_monitor_update();
 
 // basic functions
 void wm_run();

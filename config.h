@@ -1,3 +1,4 @@
+#include "modules/multimon/multimon.h"
 #include "definitions.h"
 
 // VARIABLES
@@ -23,7 +24,6 @@ static void (*layouts[])() =  {masterstack, monocle};
 #include "modules/pertag/pertag.h"
 #include "modules/cancer/cancer.h"
 
-
 // KEYBINDINGS
 #define MODKEY Mod1Mask // ALT
 //#define MODKEY Mod4Mask // Super
@@ -34,7 +34,7 @@ static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
     {MODKEY, XK_Return, wm_spawn, STRING, "st"},
     {MODKEY, XK_r, wm_spawn, STRING, "dmenu_run"},
     // monitors
-    {MODKEY|ControlMask, XK_m, wm_monitor_update, NONE, NULL},
+    {MODKEY|ControlMask, XK_m, multimon_monitor_update, NONE, NULL},
     {MODKEY, XK_u, move_tag_mask_to_next_monitor, NONE, NULL},
     {MODKEY, XK_i, move_tag_mask_to_prev_monitor, NONE, NULL},
     // clients
@@ -103,7 +103,8 @@ static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
 #include "modules/basic_user_control/basic_user_control.c"
 #include "modules/pertag/pertag.c"
 #include "modules/cancer/cancer.c"
+#include "modules/multimon/multimon.c"
 
 // ON_START AND ON_STOP
-static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init};
+static void (*wm_on_init[])() = {multimon_init, basic_event_handling_init, basic_key_handling_init};
 static void (*wm_on_tini[])() = {};

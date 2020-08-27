@@ -1,4 +1,4 @@
-void masterstack(wm_monitor_t * monitor) {
+void masterstack(multimon_monitor_t * monitor) {
     int num_of_clients = wm_clients_count();
     wm_client_t *client = wm_client_get_next(NULL);
     if (num_of_clients == 0) {
