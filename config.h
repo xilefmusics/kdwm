@@ -17,6 +17,7 @@ enum {MASTERSTACK, MONOCLE};
 static void (*layouts[])() =  {masterstack, monocle};
 
 // MODULES 1
+#include "modules/basic_key_handling/basic_key_handling.h"
 #include "modules/basic_user_control.c"
 #include "modules/basic_event_handling.c"
 #include "modules/pertag.c"
@@ -26,7 +27,7 @@ static void (*layouts[])() =  {masterstack, monocle};
 // KEYBINDINGS
 #define MODKEY Mod1Mask // ALT
 //#define MODKEY Mod4Mask // Super
-static wm_keybinding_t wm_keybindings[] = {
+static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
     // stop
     {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
     // spawn
@@ -97,7 +98,7 @@ static wm_keybinding_t wm_keybindings[] = {
 };
 
 // MODULES 2
-#include "modules/basic_key_handling.c"
+#include "modules/basic_key_handling/basic_key_handling.c"
 
 // ON_START AND ON_STOP
 static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init};

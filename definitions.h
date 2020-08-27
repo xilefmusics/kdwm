@@ -14,7 +14,6 @@
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 
 // definitions
-typedef enum {NONE, STRING, INTEGER} wm_arg_types_t;
 
 enum {WM_PROTOCOLS, WM_DELETE_WINDOW, _NET_WM_NAME, _NET_SUPPORTING_WM_CHECK, UTF8_STRING};
 
@@ -64,13 +63,6 @@ typedef struct wm_global {
 } wm_global_t;
 static wm_global_t wm_global;
 
-typedef struct wm_keybinding {
-    int mod;
-    int keysym;
-    void (*func)();
-    wm_arg_types_t arg_type;
-    char *arg;
-} wm_keybinding_t;
 
 // error handler
 int wm_err_detect_other(Display * display, XErrorEvent *event);
@@ -100,7 +92,6 @@ wm_monitor_t *wm_get_monitor(int tag_mask);
 void wm_monitor_update();
 
 // basic functions
-void wm_keys_grab();
 void wm_run();
 void wm_init();
 void wm_start();

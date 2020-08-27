@@ -309,15 +309,6 @@ void wm_monitor_update() {
 }
 
 // basic functions
-void wm_keys_grab() {
-    KeyCode keycode;
-    XUngrabButton(wm_global.display, AnyKey, AnyModifier, wm_global.root_window);
-    for (int i = 0; i < LENGTH(wm_keybindings); i++) {
-        if (keycode = XKeysymToKeycode(wm_global.display, wm_keybindings[i].keysym)) {
-            XGrabKey(wm_global.display, keycode,  wm_keybindings[i].mod, wm_global.root_window, true, GrabModeAsync, GrabModeAsync);
-        }
-    }
-}
 
 void wm_run() {
     XEvent event;
@@ -358,9 +349,6 @@ void wm_init() {
 
     // tell X-Server to handle the root_window
     XSelectInput(wm_global.display, wm_global.root_window, SubstructureRedirectMask | SubstructureNotifyMask | KeyPressMask);
-
-    // grab all key events while MODKEY is pressed
-    wm_keys_grab();
 
     // get atoms
     wm_global.atoms[WM_PROTOCOLS] = XInternAtom(wm_global.display, "WM_PROTOCOLS", false);
