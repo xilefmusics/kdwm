@@ -379,60 +379,6 @@ void wm_init() {
     XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_WM_NAME], wm_global.atoms[UTF8_STRING], 8, PropModeReplace, "kdwm", 4);
 	XSync(wm_global.display, false);
 
-    // test EWMH support
-    enum {_NET_SUPPORTED, _NET_NUMBER_OF_DESKTOPS, _NET_CURRENT_DESKTOP, _NET_DESKTOP_NAMES, _NET_DESKTOP_VIEWPORT, _NET_LAST};
-    Atom netatom[_NET_LAST];
-    netatom[_NET_SUPPORTED] = XInternAtom(wm_global.display, "_NET_SUPPORTED", false);
-    netatom[_NET_NUMBER_OF_DESKTOPS] = XInternAtom(wm_global.display, "_NET_NUMBER_OF_DESKTOPS", false);
-    netatom[_NET_CURRENT_DESKTOP] = XInternAtom(wm_global.display, "_NET_CURRENT_DESKTOP", false);
-    netatom[_NET_DESKTOP_NAMES] = XInternAtom(wm_global.display, "_NET_DESKTOP_NAMES", false);
-    netatom[_NET_DESKTOP_VIEWPORT] = XInternAtom(wm_global.display, "_NET_DESKTOP_VIEWPORT", false);
-
-    long data1[] = {NUM_OF_TAGS};
-    XChangeProperty(
-                wm_global.display,
-                wm_global.root_window,
-                netatom[_NET_NUMBER_OF_DESKTOPS],
-                XA_CARDINAL,
-                32,
-                PropModeReplace,
-                (unsigned char *) data1,
-                1
-            );
-    long data2[] = {1};
-    XChangeProperty(
-                wm_global.display,
-                wm_global.root_window,
-                netatom[_NET_CURRENT_DESKTOP],
-                XA_CARDINAL,
-                32,
-                PropModeReplace,
-                (unsigned char *) data2,
-                1
-            );
-    XChangeProperty(
-            wm_global.display,
-            wm_global.root_window,
-            netatom[_NET_SUPPORTED],
-            XA_ATOM,
-            32,
-            PropModeReplace,
-            (unsigned char *) netatom,
-            _NET_LAST
-        );
-    long data3[][2] = {{0, 0}};
-    XChangeProperty(
-            wm_global.display,
-            wm_global.root_window,
-            netatom[_NET_DESKTOP_VIEWPORT],
-            XA_CARDINAL,
-            32,
-            PropModeReplace,
-            (unsigned char *) data3,
-            1
-        );
-
-
     // init modules
     for (int i = 0; i < LENGTH(wm_on_init); i++) {
         wm_on_init[i]();
