@@ -16,12 +16,12 @@ static const char* BORDER_COLOR_PASSIVE = "#282828";
 enum {MASTERSTACK, MONOCLE};
 static void (*layouts[])() =  {masterstack, monocle};
 
-// MODULES 1
+// MODULES (.h)
 #include "modules/basic_key_handling/basic_key_handling.h"
 #include "modules/basic_event_handling/basic_event_handling.h"
 #include "modules/basic_user_control/basic_user_control.h"
 #include "modules/pertag/pertag.h"
-#include "modules/cancer.c"
+#include "modules/cancer/cancer.h"
 
 
 // KEYBINDINGS
@@ -97,11 +97,12 @@ static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
     {MODKEY|ControlMask|ShiftMask, XK_0, wm_add_tag_to_client, INTEGER, "-1"},
 };
 
-// MODULES 2
+// MODULES (.c)
 #include "modules/basic_event_handling/basic_event_handling.c"
 #include "modules/basic_key_handling/basic_key_handling.c"
 #include "modules/basic_user_control/basic_user_control.c"
 #include "modules/pertag/pertag.c"
+#include "modules/cancer/cancer.c"
 
 // ON_START AND ON_STOP
 static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init};
