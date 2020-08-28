@@ -14,13 +14,11 @@ void pertag_configure(int tag_mask) {
   // store and restore master width
   pertag_master_widths[pertag_get_index(wm_global.tag_mask)] = wm_global.master_width;
   wm_global.master_width = pertag_master_widths[pertag_get_index(tag_mask)];
-  if (wm_global.master_width == 0) {
+  if (wm_global.master_width == 0)
     wm_global.master_width = MASTER_WIDTH;
-  }
   // store and restore active client (store window because of dangling pointers)
-  if (wm_global.client_list.active_client) {
+  if (wm_global.client_list.active_client)
     pertag_window_of_active_client[pertag_get_index(wm_global.tag_mask)] = wm_global.client_list.active_client->window;
-  }
   wm_global.client_list.active_client = wm_client_find(pertag_window_of_active_client[pertag_get_index(tag_mask)]);
 }
 
