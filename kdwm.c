@@ -136,7 +136,7 @@ int wm_clients_count(){
 }
 
 void wm_clients_arrange() {
-    (*layouts[wm_global.current_layout])();
+    (*layouts[wm_global.current_layout])(wm_global.x+OFFSET_LEFT, wm_global.y+OFFSET_TOP, wm_global.w-OFFSET_LEFT-OFFSET_RIGHT, wm_global.h+OFFSET_TOP-OFFSET_BOTTOM);
 }
 
 void wm_clients_map() {
@@ -180,8 +180,17 @@ void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border
         XConfigureWindow(wm_global.display, client->window, 31, &changes);
     }
 }
-
 void wm_client_manage(Window window) {
+    char *name;
+    if (XFetchName(wm_global.display, window, &name)) {
+      for (int i = 0; i < LENGTH(DO_NOT_HANDLE); i++) {
+        if (!strcmp(name, DO_NOT_HANDLE[i])) {
+          XMapWindow(wm_global.display, window);
+          return;
+        }
+      }
+      XFree(name);
+    }
     XMapWindow(wm_global.display, window);
     wm_client_add(window);
     wm_client_focus(wm_global.client_list.head_client);

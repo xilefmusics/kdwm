@@ -6,15 +6,22 @@ static const int BORDER_WIDTH = 1;
 /* static const char* BORDER_COLOR_ACTIVE = "#83a598"; */
 static const char* BORDER_COLOR_ACTIVE = "#FF0000";
 static const char* BORDER_COLOR_PASSIVE = "#282828";
-
-// MODULE VARIABLES
-#define NUM_OF_TAGS 9
+static const char* DO_NOT_HANDLE[] = {
+  "bar" // lemonbar
+};
+static const int OFFSET_TOP = 20;
+static const int OFFSET_BOTTOM = 0;
+static const int OFFSET_LEFT = 0;
+static const int OFFSET_RIGHT = 0;
 
 // LAYOUTS
 #include "layouts/masterstack.c"
 #include "layouts/monocle.c"
 enum {MASTERSTACK, MONOCLE};
-static void (*layouts[])() =  {masterstack, monocle};
+static void (*layouts[])(int x, int y, int w, int h) =  {masterstack, monocle};
+
+// MODULE VARIABLES
+#define NUM_OF_TAGS 9
 
 // MODULES (.h)
 #include "modules/multimon/multimon.h"
@@ -23,6 +30,10 @@ static void (*layouts[])() =  {masterstack, monocle};
 #include "modules/basic_user_control/basic_user_control.h"
 #include "modules/pertag/pertag.h"
 #include "modules/cancer/cancer.h"
+
+// ON_START AND ON_STOP
+static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init};
+static void (*wm_on_tini[])() = {};
 
 // KEYBINDINGS
 #define MODKEY Mod1Mask // ALT
@@ -104,7 +115,3 @@ static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
 #include "modules/basic_user_control/basic_user_control.c"
 #include "modules/pertag/pertag.c"
 #include "modules/cancer/cancer.c"
-
-// ON_START AND ON_STOP
-static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init};
-static void (*wm_on_tini[])() = {};
