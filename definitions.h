@@ -35,7 +35,7 @@ typedef struct wm_global {
     Display *display;
     Window root_window;
     int screen;
-    int screen_width, screen_height;
+    int x, y, w, h;
     bool running;
     int tag_mask;
     int master_width;
@@ -66,7 +66,7 @@ void wm_client_send_XEvent(wm_client_t *client, Atom atom);
 int wm_clients_count();
 void wm_clients_arrange();
 void wm_clients_map();
-void wm_clients_unmap(multimon_monitor_t *monitor);
+void wm_clients_unmap(int tag_mask);
 void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border);
 wm_client_t *wm_client_find(Window window);
 void wm_client_manage(Window window);

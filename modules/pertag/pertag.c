@@ -26,7 +26,11 @@ void pertag_configure(int tag_mask) {
 
 void pertag_retag(int tag_mask) {
     pertag_configure(tag_mask);
-    wm_retag(tag_mask);
+    #ifdef MULTIMON
+      multimon_retag(tag_mask);
+    #else
+      wm_retag(tag_mask);
+    #endif
 }
 
 void pertag_add_tag_to_tag_mask(int tag_mask) {

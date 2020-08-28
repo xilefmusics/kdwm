@@ -136,8 +136,7 @@ int wm_clients_count(){
 }
 
 void wm_clients_arrange() {
-    multimon_monitor_update();
-    (*layouts[wm_global.current_layout])(multimon_get_monitor(wm_global.tag_mask));
+    (*layouts[wm_global.current_layout])();
 }
 
 void wm_clients_map() {
@@ -150,10 +149,10 @@ void wm_clients_map() {
     }
 }
 
-void wm_clients_unmap(multimon_monitor_t *monitor) {
+void wm_clients_unmap(int tag_mask) {
     wm_client_t *client = wm_global.client_list.head_client;
     while (client) {
-        if (client->tag_mask & monitor->active_tag_mask) {
+        if (client->tag_mask & tag_mask) {
             XUnmapWindow(wm_global.display, client->window);
         }
         client = client->next;
@@ -243,8 +242,10 @@ void wm_init() {
 
     // init screen
     wm_global.screen = DefaultScreen(wm_global.display);
-    wm_global.screen_width = DisplayWidth(wm_global.display, wm_global.screen);
-    wm_global.screen_height = DisplayHeight(wm_global.display, wm_global.screen);
+    wm_global.w = DisplayWidth(wm_global.display, wm_global.screen);
+    wm_global.h = DisplayHeight(wm_global.display, wm_global.screen);
+    wm_global.x = 0;
+    wm_global.y = 0;
 
     // init root window
     wm_global.root_window = RootWindow(wm_global.display, wm_global.screen);

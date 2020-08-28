@@ -1,4 +1,3 @@
-#include "modules/multimon/multimon.h"
 #include "definitions.h"
 
 // VARIABLES
@@ -18,6 +17,7 @@ enum {MASTERSTACK, MONOCLE};
 static void (*layouts[])() =  {masterstack, monocle};
 
 // MODULES (.h)
+#include "modules/multimon/multimon.h"
 #include "modules/basic_key_handling/basic_key_handling.h"
 #include "modules/basic_event_handling/basic_event_handling.h"
 #include "modules/basic_user_control/basic_user_control.h"
@@ -34,9 +34,9 @@ static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
     {MODKEY, XK_Return, wm_spawn, STRING, "st"},
     {MODKEY, XK_r, wm_spawn, STRING, "dmenu_run"},
     // monitors
-    {MODKEY|ControlMask, XK_m, multimon_monitor_update, NONE, NULL},
-    {MODKEY, XK_u, move_tag_mask_to_next_monitor, NONE, NULL},
-    {MODKEY, XK_i, move_tag_mask_to_prev_monitor, NONE, NULL},
+    {MODKEY|ControlMask, XK_m, multimon_update, NONE, NULL},
+    {MODKEY, XK_u, multimon_move_tag_mask_to_next_monitor, NONE, NULL},
+    {MODKEY, XK_i, multimon_move_tag_mask_to_prev_monitor, NONE, NULL},
     // clients
     {MODKEY, XK_j, wm_focus_next, NONE, NULL},
     {MODKEY, XK_k, wm_focus_prev, NONE, NULL},
@@ -98,13 +98,13 @@ static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
 };
 
 // MODULES (.c)
+#include "modules/multimon/multimon.c"
 #include "modules/basic_event_handling/basic_event_handling.c"
 #include "modules/basic_key_handling/basic_key_handling.c"
 #include "modules/basic_user_control/basic_user_control.c"
 #include "modules/pertag/pertag.c"
 #include "modules/cancer/cancer.c"
-#include "modules/multimon/multimon.c"
 
 // ON_START AND ON_STOP
-static void (*wm_on_init[])() = {multimon_init, basic_event_handling_init, basic_key_handling_init};
+static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init};
 static void (*wm_on_tini[])() = {};

@@ -11,5 +11,3 @@ void wm_client_up();
 void wm_client_down();
 void wm_change_layout(int layout);
 void wm_change_master_width(int percent);
-void move_tag_mask_to_next_monitor();
-void move_tag_mask_to_prev_monitor();
