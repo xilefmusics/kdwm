@@ -18,34 +18,34 @@
 enum {WM_PROTOCOLS, WM_DELETE_WINDOW, _NET_WM_NAME, _NET_SUPPORTING_WM_CHECK, UTF8_STRING};
 
 typedef struct wm_client {
-    Window window;
-    struct wm_client *next;
-    struct wm_client *prev;
-    int tag_mask;
-    int x, y, w, h;
+  Window window;
+  struct wm_client *next;
+  struct wm_client *prev;
+  int tag_mask;
+  int x, y, w, h;
 } wm_client_t;
 
 typedef struct wm_client_list {
-    wm_client_t *head_client;
-    wm_client_t *active_client;
-    int size;
+  wm_client_t *head_client;
+  wm_client_t *active_client;
+  int size;
 } wm_client_list_t;
 
 typedef struct wm_global {
-    Display *display;
-    Window root_window;
-    int screen;
-    int x, y, w, h;
-    bool running;
-    int tag_mask;
-    int master_width;
-    int border_width;
-    Atom atoms[5];
-    wm_client_list_t client_list;
-    int current_layout;
-    Colormap colormap;
-    XColor border_color_active, border_color_passive;
-    void (*event_handler[LASTEvent])(XEvent *);
+  Display *display;
+  Window root_window;
+  int screen;
+  int x, y, w, h;
+  bool running;
+  int tag_mask;
+  int master_width;
+  int border_width;
+  Atom atoms[5];
+  wm_client_list_t client_list;
+  int current_layout;
+  Colormap colormap;
+  XColor border_color_active, border_color_passive;
+  void (*event_handler[LASTEvent])(XEvent *);
 } wm_global_t;
 static wm_global_t wm_global;
 
