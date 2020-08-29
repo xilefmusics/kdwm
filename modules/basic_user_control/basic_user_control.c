@@ -1,4 +1,6 @@
 void wm_retag(int tag_mask) {
+  for (int i = 0; i < LENGTH(wm_on_retag); i++)
+    wm_on_retag[i](tag_mask);
   if (tag_mask == wm_global.tag_mask)
     return;
   wm_clients_unmap(wm_global.tag_mask);
@@ -46,6 +48,8 @@ void wm_set_tag_mask_of_focused_client(int tag_mask){
 }
 
 void wm_add_tag_to_tag_mask(int tag) {
+  for (int i = 0; i < LENGTH(wm_on_add_tag_to_tag_mask); i++)
+    wm_on_add_tag_to_tag_mask[i](tag);
   wm_global.tag_mask = wm_global.tag_mask | tag;
   wm_retag(wm_global.tag_mask);
 }

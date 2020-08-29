@@ -92,7 +92,7 @@ void multimon_init() {
   wm_global.h = monitor->h;
 }
 
-void multimon_retag(int tag_mask) {
+void multimon_on_retag(int tag_mask) {
   multimon_update();
   multimon_monitor_t *monitor_old = multimon_get_monitor(wm_global.tag_mask);
   multimon_monitor_t *monitor_new = multimon_get_monitor(tag_mask);
@@ -102,7 +102,6 @@ void multimon_retag(int tag_mask) {
   wm_global.y = monitor_new->y;
   wm_global.w = monitor_new->w;
   wm_global.h = monitor_new->h;
-  wm_retag(tag_mask);
 }
 
 void multimon_move_tag_mask_to_monitor(multimon_monitor_t *old, multimon_monitor_t *new) {

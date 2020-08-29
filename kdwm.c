@@ -123,7 +123,7 @@ int wm_clients_count(){
 }
 
 void wm_clients_arrange() {
-  (*layouts[wm_global.current_layout])(wm_global.x+OFFSET_LEFT, wm_global.y+OFFSET_TOP, wm_global.w-OFFSET_LEFT-OFFSET_RIGHT, wm_global.h+OFFSET_TOP-OFFSET_BOTTOM);
+  (*layouts[wm_global.current_layout])(wm_global.x+OFFSET_LEFT, wm_global.y+OFFSET_TOP, wm_global.w-OFFSET_LEFT-OFFSET_RIGHT, wm_global.h-OFFSET_TOP-OFFSET_BOTTOM);
 }
 
 void wm_clients_map() {
