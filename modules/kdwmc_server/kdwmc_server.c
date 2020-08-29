@@ -33,8 +33,32 @@ void *kdwmc_server_thread(void *vargp) {
 }
 
 int kdwmc_server_handler(int len) {
-  strcpy(kdwmc_server_buf, "Hello from kdwmc.");
-  return 18;
+  if (!strcmp(kdwmc_server_buf, "get tag_mask")) {
+    sprintf(kdwmc_server_buf, "%d", wm_global.tag_mask);
+  } else if (!strcmp(kdwmc_server_buf, "get dimensions")) {
+    sprintf(kdwmc_server_buf, "%d %d %d %d", wm_global.x, wm_global.y, wm_global.w, wm_global.h);
+  } else if (!strcmp(kdwmc_server_buf, "get master_width")) {
+    sprintf(kdwmc_server_buf, "%d", wm_global.master_width);
+  } else if (!strcmp(kdwmc_server_buf, "get border_width")) {
+    sprintf(kdwmc_server_buf, "%d", wm_global.border_width);
+  } else if (!strcmp(kdwmc_server_buf, "get current_layout")) {
+    sprintf(kdwmc_server_buf, "%d", wm_global.current_layout);
+  } else if (!strcmp(kdwmc_server_buf, "get client_list")) {
+    wm_client_t *client = wm_global.client_list.head_client;
+    sprintf(kdwmc_server_buf, "(%d, %d)", client->window, client->tag_mask);
+    while ((client = client->next) != NULL) {
+      sprintf(kdwmc_server_buf+strlen(kdwmc_server_buf), "->(%d, %d)", client->window, client->tag_mask);
+    }
+  } else if (!strcmp(kdwmc_server_buf, "get active_client")) {
+    if (wm_global.client_list.active_client) {
+      sprintf(kdwmc_server_buf, "%d", wm_global.client_list.active_client->window);
+    } else {
+      sprintf(kdwmc_server_buf, "%d", -1);
+    }
+  } else {
+    sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
+  }
+  return strlen(kdwmc_server_buf) + 1;
 }
 
 void kdwmc_server_stop() {

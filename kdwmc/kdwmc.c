@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     strcat(buffer, argv[i]);
   }
 
-  if (sendto(s, buffer, strlen(buffer), MSG_CONFIRM, (struct sockaddr*) &server_addr, slen) == -1)
+  if (sendto(s, buffer, strlen(buffer)+1, MSG_CONFIRM, (struct sockaddr*) &server_addr, slen) == -1)
     die(__LINE__, "ERROR: Receiving request");
 
   if ((in_len = recvfrom(s, buffer, BUFLEN, MSG_WAITALL, (struct sockaddr *) &server_addr, &slen)) == -1)

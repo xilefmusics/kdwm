@@ -7,7 +7,7 @@ clean:
 	rm -f kdwmc_dev
 
 install: kdwmc_dev
-	cp -f kdwmc /bin/kdwmc
+	cp -f kdwmc_dev /bin/kdwmc_dev
 
 run: kdwmc_dev
 	./kdwmc_dev
