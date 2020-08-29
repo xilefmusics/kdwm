@@ -24,6 +24,7 @@ static void (*layouts[])(int x, int y, int w, int h) =  {masterstack, monocle};
 #define NUM_OF_TAGS 9
 
 // MODULES (.h)
+#include "modules/kdwmc_server/kdwmc_server.h"
 #include "modules/multimon/multimon.h"
 #include "modules/basic_key_handling/basic_key_handling.h"
 #include "modules/basic_event_handling/basic_event_handling.h"
@@ -32,8 +33,8 @@ static void (*layouts[])(int x, int y, int w, int h) =  {masterstack, monocle};
 #include "modules/cancer/cancer.h"
 
 // ON_START AND ON_STOP
-static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init};
-static void (*wm_on_tini[])() = {};
+static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init, kdwmc_server_start};
+static void (*wm_on_tini[])() = {kdwmc_server_stop};
 
 // KEYBINDINGS
 #define MODKEY Mod1Mask // ALT
@@ -109,6 +110,7 @@ static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
 };
 
 // MODULES (.c)
+#include "modules/kdwmc_server/kdwmc_server.c"
 #include "modules/multimon/multimon.c"
 #include "modules/basic_event_handling/basic_event_handling.c"
 #include "modules/basic_key_handling/basic_key_handling.c"
