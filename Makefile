@@ -8,7 +8,7 @@ kdwm_dev: kdwm.c config.h definitions.h
 clean:
 	rm -f kdwm_dev
 
-install:
+install: kdwm_dev
 	cp -f kdwm_dev /bin/kdwm_dev
 
 kill:
