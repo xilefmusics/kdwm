@@ -23,7 +23,7 @@ void *kdwmc_server_thread(void *vargp) {
     if ((len = recvfrom(s, kdwmc_server_buf, KDWMC_SERVER_BUFLEN, 0, (struct sockaddr *) &si_other, &slen)) == -1)
       continue;
 
-    len = kdwmc_server_handler(len);
+    len = kdwmc_server_handler(len, (struct sockaddr*) &si_other);
 
     if (sendto(s, kdwmc_server_buf, len, 0, (struct sockaddr*) &si_other, slen) == -1)
       continue;
@@ -32,33 +32,90 @@ void *kdwmc_server_thread(void *vargp) {
   return NULL;
 }
 
-int kdwmc_server_handler(int len) {
-  if (!strcmp(kdwmc_server_buf, "get tag_mask")) {
-    sprintf(kdwmc_server_buf, "%d", wm_global.tag_mask);
-  } else if (!strcmp(kdwmc_server_buf, "get dimensions")) {
-    sprintf(kdwmc_server_buf, "%d %d %d %d", wm_global.x, wm_global.y, wm_global.w, wm_global.h);
-  } else if (!strcmp(kdwmc_server_buf, "get master_width")) {
-    sprintf(kdwmc_server_buf, "%d", wm_global.master_width);
-  } else if (!strcmp(kdwmc_server_buf, "get border_width")) {
-    sprintf(kdwmc_server_buf, "%d", wm_global.border_width);
-  } else if (!strcmp(kdwmc_server_buf, "get current_layout")) {
-    sprintf(kdwmc_server_buf, "%d", wm_global.current_layout);
-  } else if (!strcmp(kdwmc_server_buf, "get client_list")) {
-    wm_client_t *client = wm_global.client_list.head_client;
-    sprintf(kdwmc_server_buf, "(%d, %d)", client->window, client->tag_mask);
-    while ((client = client->next) != NULL) {
-      sprintf(kdwmc_server_buf+strlen(kdwmc_server_buf), "->(%d, %d)", client->window, client->tag_mask);
-    }
-  } else if (!strcmp(kdwmc_server_buf, "get active_client")) {
-    if (wm_global.client_list.active_client) {
-      sprintf(kdwmc_server_buf, "%d", wm_global.client_list.active_client->window);
-    } else {
-      sprintf(kdwmc_server_buf, "%d", -1);
-    }
-  } else {
+int kdwmc_server_handler(int len, struct sockaddr *client) {
+  char *ptr = kdwmc_server_buf, *space;
+  if (!(space = strchr(ptr, ' '))) {
     sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
+    return strlen(kdwmc_server_buf) + 1;
   }
+  *space = '\0';
+
+  if (!strcmp(ptr, "get")) {
+    ptr = space+1;
+    if (!strcmp(ptr, "tag_mask")) {
+      sprintf(kdwmc_server_buf, "%d", wm_global.tag_mask);
+    } else if (!strcmp(ptr, "dimensions")) {
+      sprintf(kdwmc_server_buf, "%d %d %d %d", wm_global.x, wm_global.y, wm_global.w, wm_global.h);
+    } else if (!strcmp(ptr, "master_width")) {
+      sprintf(kdwmc_server_buf, "%d", wm_global.master_width);
+    } else if (!strcmp(ptr, "border_width")) {
+      sprintf(kdwmc_server_buf, "%d", wm_global.border_width);
+    } else if (!strcmp(ptr, "current_layout")) {
+      sprintf(kdwmc_server_buf, "%d", wm_global.current_layout);
+    } else if (!strcmp(ptr, "num_of_tags")) {
+      sprintf(kdwmc_server_buf, "%d", NUM_OF_TAGS);
+    } else if (!strcmp(ptr, "client_list")) {
+      wm_client_t *client = wm_global.client_list.head_client;
+      sprintf(kdwmc_server_buf, "(%d, %d)", client->window, client->tag_mask);
+      while ((client = client->next) != NULL) {
+        sprintf(kdwmc_server_buf+strlen(kdwmc_server_buf), "->(%d, %d)", client->window, client->tag_mask);
+      }
+    } else if (!strcmp(ptr, "active_client")) {
+      if (wm_global.client_list.active_client) {
+        sprintf(kdwmc_server_buf, "%d", wm_global.client_list.active_client->window);
+      } else {
+        sprintf(kdwmc_server_buf, "%d", -1);
+      }
+    } else {
+      sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
+    }
+  } else if (!strcmp(ptr, "set")) {
+    ptr = space+1;
+    if (!(space = strchr(ptr, ' '))) {
+      sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
+      return strlen(kdwmc_server_buf) + 1;
+    }
+    *space = '\0';
+  }
+
+  if (!strcmp(ptr, "observe")) {
+    ptr = space+1;
+    if (!strcmp(ptr, "tag_mask")) {
+      if (!kdwmc_server_has_tag_mask_observer) {
+        kdwmc_server_tag_mask_observer = *client;
+        kdwmc_server_has_tag_mask_observer = true;
+        sprintf(kdwmc_server_buf, "0");
+      } else {
+        sprintf(kdwmc_server_buf, "1");
+      }
+    } else {
+      sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
+    }
+  }
+
+  if (!strcmp(ptr, "reset")) {
+    ptr = space+1;
+    if (!strcmp(ptr, "tag_mask_observer")) {
+      kdwmc_server_has_tag_mask_observer = false;
+      sprintf(kdwmc_server_buf, "0");
+    } else {
+      sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
+    }
+  }
+
+
   return strlen(kdwmc_server_buf) + 1;
+}
+
+void kdwmc_server_observe_tag_mask(int tag_mask) {
+  if (!kdwmc_server_has_tag_mask_observer)
+    return;
+  int s;
+  if ((s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    return;
+  char buffer[16];
+  sprintf(buffer, "%d", tag_mask);
+  sendto(s, buffer, strlen(buffer)+1, 0, &kdwmc_server_tag_mask_observer, sizeof(kdwmc_server_tag_mask_observer));
 }
 
 void kdwmc_server_stop() {

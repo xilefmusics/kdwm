@@ -9,7 +9,7 @@ static const char* BORDER_COLOR_PASSIVE = "#282828";
 static const char* DO_NOT_HANDLE[] = {
   "bar" // lemonbar
 };
-static const int OFFSET_TOP = 20;
+static const int OFFSET_TOP = 32;
 static const int OFFSET_BOTTOM = 0;
 static const int OFFSET_LEFT = 0;
 static const int OFFSET_RIGHT = 0;
@@ -35,7 +35,7 @@ static void (*layouts[])(int x, int y, int w, int h) =  {masterstack, monocle};
 // INSERT FUNCTIONS
 static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init, kdwmc_server_start};
 static void (*wm_on_tini[])() = {kdwmc_server_stop};
-static void (*wm_on_retag[])(int tag_mask) = {multimon_on_retag, pertag_configure};
+static void (*wm_on_retag[])(int tag_mask) = {multimon_on_retag, pertag_configure, kdwmc_server_observe_tag_mask};
 static void (*wm_on_add_tag_to_tag_mask[])(int tag) = {pertag_configure};
 
 // KEYBINDINGS

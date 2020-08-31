@@ -10,25 +10,45 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #define PORT 8383
 #define BUFLEN 1024
 char buffer[BUFLEN];
+struct sockaddr_in server_addr;
+int in_len, slen;
 
 static void die (int line_number, const char * format, ...) {
-    va_list vargs;
-    va_start (vargs, format);
-    fprintf (stderr, "%d: ", line_number);
-    vfprintf (stderr, format, vargs);
-    fprintf (stderr, ".\n");
-    va_end (vargs);
-    exit (1);
+  va_list vargs;
+  va_start (vargs, format);
+  fprintf (stderr, "%d: ", line_number);
+  vfprintf (stderr, format, vargs);
+  fprintf (stderr, ".\n");
+  va_end (vargs);
+  exit (1);
+}
+
+void sig_handler(int signo) {
+  int s;
+
+  strcpy(buffer, "reset tag_mask_observer");
+
+	if ((s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    die(__LINE__, "ERROR: Creating socket");
+
+  if (sendto(s, buffer, strlen(buffer)+1, MSG_CONFIRM, (struct sockaddr*) &server_addr, slen) == -1)
+    die(__LINE__, "ERROR: Sending request");
+
+  exit(0);
+
 }
 
 int main(int argc, char *argv[]) {
-  struct sockaddr_in server_addr;
+  int s;
+  slen = sizeof(server_addr);
 
-  int s, in_len, slen = sizeof(server_addr);
+  if (signal(SIGINT, sig_handler) == SIG_ERR)
+    die(__LINE__, "ERROR: While initializing signal handler");
 
 	if ((s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     die(__LINE__, "ERROR: Creating socket");
@@ -45,10 +65,22 @@ int main(int argc, char *argv[]) {
   }
 
   if (sendto(s, buffer, strlen(buffer)+1, MSG_CONFIRM, (struct sockaddr*) &server_addr, slen) == -1)
-    die(__LINE__, "ERROR: Receiving request");
+    die(__LINE__, "ERROR: Sending request");
 
   if ((in_len = recvfrom(s, buffer, BUFLEN, MSG_WAITALL, (struct sockaddr *) &server_addr, &slen)) == -1)
-    die(__LINE__, "ERROR: Sending response");
+    die(__LINE__, "ERROR: Receiving response");
+
+  if (argc > 1 && !strcmp(argv[1], "observe")) {
+    if (strcmp(buffer, "0")) {
+      printf("There is already an observer.\n");
+      return 0;
+    }
+    while (1) {
+      if ((in_len = recvfrom(s, buffer, BUFLEN, MSG_WAITALL, (struct sockaddr *) &server_addr, &slen)) == -1)
+        die(__LINE__, "ERROR: Sending response");
+      printf("%s\n", buffer);
+    }
+  }
 
   printf("%s\n", buffer);
 
