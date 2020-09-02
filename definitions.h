@@ -16,7 +16,7 @@
 // definitions
 typedef enum {NONE, STRING, INTEGER} wm_arg_types_t;
 
-enum {WM_PROTOCOLS, WM_DELETE_WINDOW, _NET_WM_NAME, _NET_SUPPORTING_WM_CHECK, UTF8_STRING};
+enum {WM_PROTOCOLS, WM_DELETE_WINDOW, _NET_WM_NAME, _NET_SUPPORTING_WM_CHECK, UTF8_STRING, _NET_CLIENT_LIST};
 
 typedef struct wm_client {
     Window window;
@@ -54,7 +54,7 @@ typedef struct wm_global {
     int tag_mask;
     int master_width;
     int border_width;
-    Atom atoms[5];
+    Atom atoms[6];
     wm_client_list_t client_list;
     wm_monitor_list_t monitor_list;
     int current_layout;

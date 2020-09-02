@@ -67,6 +67,9 @@ void wm_client_add(Window window) {
     new->next = wm_global.client_list.head_client;
     wm_global.client_list.head_client = new;
     wm_global.client_list.size++;
+
+    XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_CLIENT_LIST], XA_WINDOW, 32, PropModeAppend,
+        (unsigned char*) &(new->window), 1);
 }
 
 void wm_client_delete(wm_client_t *client) {
@@ -81,6 +84,13 @@ void wm_client_delete(wm_client_t *client) {
     }
     free(client);
     wm_global.client_list.size--;
+
+    XDeleteProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_CLIENT_LIST]);
+    wm_client_t * c = wm_global.client_list.head_client;
+    for (int i = 0; i < wm_global.client_list.size; i++) {
+        XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_CLIENT_LIST], XA_WINDOW, 32, PropModeAppend,
+            (unsigned char*) &(c->window), 1);
+    }
 }
 
 void wm_client_swap(wm_client_t *client1, wm_client_t *client2) {
@@ -446,6 +456,7 @@ void wm_init() {
 	wm_global.atoms[_NET_WM_NAME] = XInternAtom(wm_global.display, "_NET_WM_NAME", false);
 	wm_global.atoms[_NET_SUPPORTING_WM_CHECK] = XInternAtom(wm_global.display, "_NET_SUPPORTING_WM_CHECK", false);
 	wm_global.atoms[UTF8_STRING] = XInternAtom(wm_global.display, "UTF8_STRING", false);
+    wm_global.atoms[_NET_CLIENT_LIST] = XInternAtom(wm_global.display, "_NET_CLIENT_LIST", false);
 
     // init colors
     wm_global.colormap = XCreateColormap(wm_global.display, wm_global.root_window, XDefaultVisual(wm_global.display, wm_global.screen), AllocNone);
@@ -456,6 +467,9 @@ void wm_init() {
 	XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_SUPPORTING_WM_CHECK], XA_WINDOW, 32, PropModeReplace, (unsigned char *)&wm_global.root_window, 1);
     XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_WM_NAME], wm_global.atoms[UTF8_STRING], 8, PropModeReplace, "kdwm", 4);
 	XSync(wm_global.display, false);
+
+    // copied form dwm
+    XDeleteProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_CLIENT_LIST]);
 
     // init modules
     for (int i = 0; i < LENGTH(wm_on_init); i++) {
