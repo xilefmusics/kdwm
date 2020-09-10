@@ -1,13 +1,13 @@
 all: kdwmc
 
-kdwmc_dev: kdwmc.c
-	cc -o kdwmc_dev kdwmc.c
+kdwmc: kdwmc.c
+	cc -o kdwmc kdwmc.c
 
 clean:
-	rm -f kdwmc_dev
+	rm -f kdwmc
 
-install: kdwmc_dev
-	cp -f kdwmc_dev /bin/kdwmc_dev
+install: kdwmc
+	cp -f kdwmc /bin/kdwmc
 
-run: kdwmc_dev
-	./kdwmc_dev
+run: kdwmc
+	./kdwmc
