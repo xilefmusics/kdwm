@@ -62,9 +62,28 @@ static const void (*wm_on_arrange[])() = {
 static const basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
   // stop
   {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
+  // audio
+  {0, XF86XK_AudioLowerVolume, wm_spawn, STRING, "amixer set Master 5%-"},
+  {0, XF86XK_AudioRaiseVolume, wm_spawn, STRING, "amixer set Master 5%+"},
+  {0, XF86XK_AudioMute, wm_spawn, STRING, "amixer set Master toggle"},
+  // brightness
+  {0, XF86XK_MonBrightnessUp, wm_spawn, STRING, "xib +5"},
+  {0, XF86XK_MonBrightnessDown, wm_spawn, STRING, "xib -5"},
   // spawn
-  {MODKEY, XK_Return, wm_spawn, STRING, "st"},
+  {MODKEY, XK_b, wm_spawn, STRING, "qutebrowser"},
+  {MODKEY|ShiftMask, XK_b, wm_spawn, STRING, "chromium"},
+  {MODKEY|ShiftMask, XK_t, wm_spawn, STRING, "telegram-desktop"},
   {MODKEY, XK_r, wm_spawn, STRING, "dmenu_run"},
+  {MODKEY|ControlMask, XK_d, wm_spawn, STRING, "dmenu_monitor"},
+  {MODKEY, XK_Return, wm_spawn, STRING, "st"},
+  {MODKEY, XK_e, wm_spawn, STRING, "st -e lf"},
+  {MODKEY|ShiftMask, XK_m, wm_spawn, STRING, "st -e cmus"},
+  // system
+  {MODKEY|ControlMask, XK_l, wm_spawn, STRING, "i3lock -c 000000 && systemctl suspend"},
+  {MODKEY|ControlMask, XK_s, wm_spawn, STRING, "systemctl suspend"},
+  // keyboardlayouts
+  {MODKEY|ControlMask, XK_u, wm_spawn, STRING, "setxkbmap us"},
+  {MODKEY|ControlMask, XK_g, wm_spawn, STRING, "setxkbmap de"},
   // monitors
   {MODKEY|ControlMask, XK_m, multimon_update, NONE, NULL},
   {MODKEY, XK_u, multimon_move_tag_mask_to_next_monitor, NONE, NULL},
