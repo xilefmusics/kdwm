@@ -3,7 +3,7 @@ all: kdwm
 force: clean kdwm
 
 kdwm: kdwm.c config.h definitions.h
-	cc -lX11 -lXinerama kdwm.c -o kdwm
+	cc -lX11 -lXinerama -lpthread kdwm.c -o kdwm
 
 clean:
 	rm kdwm
