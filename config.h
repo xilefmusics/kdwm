@@ -1,47 +1,65 @@
 #include "definitions.h"
 
+// MODULES (.h)
+#include "modules/basic_event_handling/basic_event_handling.h"
+#include "modules/basic_key_handling/basic_key_handling.h"
+#include "modules/basic_user_control/basic_user_control.h"
+#include "modules/pertag/pertag.h"
+#include "modules/multimon/multimon.h"
+#include "modules/cancer/cancer.h"
+// #include "modules/kdwmc_server/kdwmc_server.h"
+// #include "modules/autostart/autostart.h"
+
 // VARIABLES
 static const int MASTER_WIDTH = 50;
 static const int BORDER_WIDTH = 1;
-/* static const char* BORDER_COLOR_ACTIVE = "#83a598"; */
-static const char* BORDER_COLOR_ACTIVE = "#FF0000";
-static const char* BORDER_COLOR_PASSIVE = "#282828";
-static const char* DO_NOT_HANDLE[] = {
-  "bar" // lemonbar
-};
-static const int OFFSET_TOP = 32;
+static const int OFFSET_TOP = 0;
 static const int OFFSET_BOTTOM = 0;
 static const int OFFSET_LEFT = 0;
 static const int OFFSET_RIGHT = 0;
-
-// LAYOUTS
-#include "layouts/masterstack.c"
-#include "layouts/monocle.c"
-enum {MASTERSTACK, MONOCLE};
-static void (*layouts[])(int x, int y, int w, int h) =  {masterstack, monocle};
+static const int GAPS = 0;
+static const char* BORDER_COLOR_ACTIVE = "#cc241d";
+static const char* BORDER_COLOR_PASSIVE = "#262626";
+static const char* DO_NOT_HANDLE[] = {};
 
 // MODULE VARIABLES
 #define NUM_OF_TAGS 9
 
-// MODULES (.h)
-#include "modules/kdwmc_server/kdwmc_server.h"
-#include "modules/multimon/multimon.h"
-#include "modules/basic_key_handling/basic_key_handling.h"
-#include "modules/basic_event_handling/basic_event_handling.h"
-#include "modules/basic_user_control/basic_user_control.h"
-#include "modules/pertag/pertag.h"
-#include "modules/cancer/cancer.h"
+// LAYOUTS
+#include "layouts/masterstack.c"
+#include "layouts/monocle.c"
+#include "layouts/fullscreen.c"
+enum {MASTERSTACK, MONOCLE, FULLSCREEN};
+static const void (*layouts[])(int x, int y, int w, int h) =  {masterstack, monocle, fullscreen};
+
+// AUTOSTART
+// static const char *autostart_commands[] = {};
 
 // INSERT FUNCTIONS
-static void (*wm_on_init[])() = {basic_event_handling_init, basic_key_handling_init, kdwmc_server_start};
-static void (*wm_on_tini[])() = {kdwmc_server_stop};
-static void (*wm_on_retag[])(int tag_mask) = {multimon_on_retag, pertag_configure, kdwmc_server_observe_tag_mask};
-static void (*wm_on_add_tag_to_tag_mask[])(int tag) = {pertag_configure};
+static const void (*wm_on_init[])() = {
+  basic_event_handling_init,
+  basic_key_handling_init,
+//  kdwmc_server_start,
+//  autostart
+};
+static const void (*wm_on_tini[])() = {
+//  kdwmc_server_stop
+};
+static const void (*wm_on_retag[])(int tag_mask) = {
+  multimon_on_retag,
+  pertag_configure
+};
+static const void (*wm_on_add_tag_to_tag_mask[])(int tag) = {
+  pertag_configure
+};
+static const void (*wm_on_arrange[])() = {
+//  kdwmc_server_subscribe
+};
 
 // KEYBINDINGS
 #define MODKEY Mod1Mask // ALT
-//#define MODKEY Mod4Mask // Super
-static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
+// #define MODKEY Mod4Mask // Super
+static const basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
   // stop
   {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
   // spawn
@@ -61,6 +79,7 @@ static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
   // layouts
   {MODKEY, XK_t, wm_change_layout, INTEGER, "0"},
   {MODKEY, XK_m, wm_change_layout, INTEGER, "1"},
+  {MODKEY, XK_f, wm_change_layout, INTEGER, "2"},
   // change master width
   {MODKEY, XK_h, wm_change_master_width, INTEGER, "-5"},
   {MODKEY, XK_l, wm_change_master_width, INTEGER, "5"},
@@ -112,10 +131,11 @@ static basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
 };
 
 // MODULES (.c)
-#include "modules/kdwmc_server/kdwmc_server.c"
-#include "modules/multimon/multimon.c"
 #include "modules/basic_event_handling/basic_event_handling.c"
 #include "modules/basic_key_handling/basic_key_handling.c"
 #include "modules/basic_user_control/basic_user_control.c"
 #include "modules/pertag/pertag.c"
+#include "modules/multimon/multimon.c"
 #include "modules/cancer/cancer.c"
+// #include "modules/kdwmc_server/kdwmc_server.c"
+// #include "modules/autostart/autostart.c"

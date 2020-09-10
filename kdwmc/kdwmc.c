@@ -28,27 +28,9 @@ static void die (int line_number, const char * format, ...) {
   exit (1);
 }
 
-void sig_handler(int signo) {
-  int s;
-
-  strcpy(buffer, "reset tag_mask_observer");
-
-	if ((s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-    die(__LINE__, "ERROR: Creating socket");
-
-  if (sendto(s, buffer, strlen(buffer)+1, MSG_CONFIRM, (struct sockaddr*) &server_addr, slen) == -1)
-    die(__LINE__, "ERROR: Sending request");
-
-  exit(0);
-
-}
-
 int main(int argc, char *argv[]) {
   int s;
   slen = sizeof(server_addr);
-
-  if (signal(SIGINT, sig_handler) == SIG_ERR)
-    die(__LINE__, "ERROR: While initializing signal handler");
 
 	if ((s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     die(__LINE__, "ERROR: Creating socket");
@@ -70,11 +52,7 @@ int main(int argc, char *argv[]) {
   if ((in_len = recvfrom(s, buffer, BUFLEN, MSG_WAITALL, (struct sockaddr *) &server_addr, &slen)) == -1)
     die(__LINE__, "ERROR: Receiving response");
 
-  if (argc > 1 && !strcmp(argv[1], "observe")) {
-    if (strcmp(buffer, "0")) {
-      printf("There is already an observer.\n");
-      return 0;
-    }
+  if (argc > 1 && !strcmp(argv[1], "subscribe")) {
     while (1) {
       if ((in_len = recvfrom(s, buffer, BUFLEN, MSG_WAITALL, (struct sockaddr *) &server_addr, &slen)) == -1)
         die(__LINE__, "ERROR: Sending response");

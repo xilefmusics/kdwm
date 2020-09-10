@@ -16,11 +16,11 @@
 char kdwmc_server_buf[KDWMC_SERVER_BUFLEN];
 bool kdwmc_server_running = false;
 pthread_t kdwmc_server_thread_id;
-struct sockaddr kdwmc_server_tag_mask_observer;
-bool kdwmc_server_has_tag_mask_observer = false;
+bool kdwmc_server_has_subscriber = false;
+struct sockaddr kdwmc_server_subscriber;
 
 void kdwmc_server_start();
 void *kdwmc_server_thread(void *vargp);
 int kdwmc_server_handler(int len, struct sockaddr *client);
-void kdwmc_server_observe_tag_mask(int tag_mask);
+void kdwmc_server_subscribe();
 void kdwmc_server_stop();

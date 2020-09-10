@@ -123,7 +123,9 @@ int wm_clients_count(){
 }
 
 void wm_clients_arrange() {
-  (*layouts[wm_global.current_layout])(wm_global.x+OFFSET_LEFT, wm_global.y+OFFSET_TOP, wm_global.w-OFFSET_LEFT-OFFSET_RIGHT, wm_global.h-OFFSET_TOP-OFFSET_BOTTOM);
+  for (int i = 0; i < LENGTH(wm_on_arrange); i++)
+    wm_on_arrange[i]();
+  (*layouts[wm_global.current_layout])(wm_global.x+OFFSET_LEFT+GAPS, wm_global.y+OFFSET_TOP+GAPS, wm_global.w-OFFSET_LEFT-OFFSET_RIGHT-2*GAPS, wm_global.h-OFFSET_TOP-OFFSET_BOTTOM-2*GAPS);
 }
 
 void wm_clients_map() {
@@ -145,22 +147,22 @@ void wm_clients_unmap(int tag_mask) {
 }
 
 void wm_client_draw(wm_client_t *client, int x, int y, int w, int h, bool border) {
-  client->x = x;
-  client->y = y;
-  client->w = w;
-  client->h = h;
+  client->x = x+GAPS;
+  client->y = y+GAPS;
+  client->w = w-2*GAPS;
+  client->h = h-2*GAPS;
   XWindowChanges changes;
-  changes.x = x;
-  changes.y = y;
+  changes.x = x+GAPS;
+  changes.y = y+GAPS;
   if (border) {
-    changes.width = w-2*wm_global.border_width;
-    changes.height = h-2*wm_global.border_width;
+    changes.width = w-2*wm_global.border_width-2*GAPS;
+    changes.height = h-2*wm_global.border_width-2*GAPS;
     changes.border_width = wm_global.border_width;
     XConfigureWindow(wm_global.display, client->window, 31, &changes);
     wm_client_set_border_color(client);
   } else {
-    changes.width = w;
-    changes.height = h;
+    changes.width = w-2*GAPS;
+    changes.height = h-2*GAPS;
     changes.border_width = 0;
     XConfigureWindow(wm_global.display, client->window, 31, &changes);
   }

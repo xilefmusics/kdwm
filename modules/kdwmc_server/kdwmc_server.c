@@ -34,6 +34,14 @@ void *kdwmc_server_thread(void *vargp) {
 
 int kdwmc_server_handler(int len, struct sockaddr *client) {
   char *ptr = kdwmc_server_buf, *space;
+
+  if (!strcmp(ptr, "subscribe")) {
+    kdwmc_server_subscriber = *client;
+    kdwmc_server_has_subscriber = true;
+    sprintf(kdwmc_server_buf, "0");
+    return strlen(kdwmc_server_buf) + 1;
+  }
+
   if (!(space = strchr(ptr, ' '))) {
     sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
     return strlen(kdwmc_server_buf) + 1;
@@ -69,56 +77,21 @@ int kdwmc_server_handler(int len, struct sockaddr *client) {
     } else {
       sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
     }
-  } else if (!strcmp(ptr, "set")) {
-    ptr = space+1;
-    if (!(space = strchr(ptr, ' '))) {
-      sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
-      return strlen(kdwmc_server_buf) + 1;
-    }
-    *space = '\0';
   }
-
-  if (!strcmp(ptr, "observe")) {
-    ptr = space+1;
-    if (!strcmp(ptr, "tag_mask")) {
-      if (!kdwmc_server_has_tag_mask_observer) {
-        kdwmc_server_tag_mask_observer = *client;
-        kdwmc_server_has_tag_mask_observer = true;
-        sprintf(kdwmc_server_buf, "0");
-      } else {
-        sprintf(kdwmc_server_buf, "1");
-      }
-    } else {
-      sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
-    }
-  }
-
-  if (!strcmp(ptr, "reset")) {
-    ptr = space+1;
-    if (!strcmp(ptr, "tag_mask_observer")) {
-      kdwmc_server_has_tag_mask_observer = false;
-      sprintf(kdwmc_server_buf, "0");
-    } else {
-      sprintf(kdwmc_server_buf, "ERROR: unsupported operation");
-    }
-  }
-
-
   return strlen(kdwmc_server_buf) + 1;
 }
 
-void kdwmc_server_observe_tag_mask(int tag_mask) {
-  if (!kdwmc_server_has_tag_mask_observer)
+void kdwmc_server_subscribe() {
+  if (!kdwmc_server_has_subscriber)
     return;
   int s;
   if ((s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     return;
   char buffer[16];
-  sprintf(buffer, "%d", tag_mask);
-  sendto(s, buffer, strlen(buffer)+1, 0, &kdwmc_server_tag_mask_observer, sizeof(kdwmc_server_tag_mask_observer));
+  sprintf(buffer, "%d %d", wm_global.tag_mask, wm_global.current_layout);
+  sendto(s, buffer, strlen(buffer)+1, 0, &kdwmc_server_subscriber, sizeof(kdwmc_server_subscriber));
 }
 
 void kdwmc_server_stop() {
   kdwmc_server_running = false;
-  pthread_join(kdwmc_server_thread_id, NULL);
 }
