@@ -19,7 +19,7 @@ void wm_client_add(Window window) {
   client->next = wm_global.client_list.head_client;
   wm_global.client_list.head_client = client;
   wm_global.client_list.size++;
-  XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_CLIENT_LIST], XA_WINDOW, 32, PropModeAppend, (unsigned char *)&(new->window), 1);
+  XChangeProperty(wm_global.display, wm_global.root_window, wm_global.atoms[_NET_CLIENT_LIST], XA_WINDOW, 32, PropModeAppend, (unsigned char *)&(client->window), 1);
 }
 
 void wm_client_delete(wm_client_t *client) {
