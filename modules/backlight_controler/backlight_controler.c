@@ -1,4 +1,4 @@
-long get_brightness()
+long backlight_controler_get_brightness()
 {
     FILE *fp;
     char prog_out[10];
@@ -23,9 +23,9 @@ long get_brightness()
     return br;
 }
 
-void brightness_increase()
+void backlight_controler_increase()
 {
-    long brigthness = get_brightness();
+    long brigthness = backlight_controler_get_brightness();
 
     if(brigthness < 86) {
         system("brightnessctl set +2%");
@@ -38,9 +38,9 @@ void brightness_increase()
     }
 }
 
-void brigthness_decrease()
+void backlight_controler_decrease()
 {
-    long brigthness = get_brightness();
+    long brigthness = backlight_controler_get_brightness();
 
     if(brigthness < 86) {
         system("brightnessctl set 2%- -n");
