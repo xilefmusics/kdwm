@@ -7,20 +7,24 @@
 #include "modules/pertag/pertag.h"
 #include "modules/multimon/multimon.h"
 #include "modules/cancer/cancer.h"
-// #include "modules/kdwmc_server/kdwmc_server.h"
-// #include "modules/autostart/autostart.h"
+#include "modules/logger/logger.h"
+//#include "modules/kdwmc_server/kdwmc_server.h"
+//#include "modules/autostart/autostart.h"
 
 // VARIABLES
 static const int MASTER_WIDTH = 50;
 static const int BORDER_WIDTH = 1;
 static const int OFFSET_TOP = 0;
+//static const int OFFSET_TOP = 18;
 static const int OFFSET_BOTTOM = 0;
 static const int OFFSET_LEFT = 0;
 static const int OFFSET_RIGHT = 0;
 static const int GAPS = 0;
 static const char* BORDER_COLOR_ACTIVE = "#cc241d";
 static const char* BORDER_COLOR_PASSIVE = "#262626";
-static const char* DO_NOT_HANDLE[] = {};
+static const char* DO_NOT_HANDLE[] = {
+  "bar" // lemonbar
+};
 
 // MODULE VARIABLES
 #define NUM_OF_TAGS 9
@@ -33,33 +37,38 @@ enum {MASTERSTACK, MONOCLE, FULLSCREEN};
 static const void (*layouts[])(int x, int y, int w, int h) =  {masterstack, monocle, fullscreen};
 
 // AUTOSTART
-// static const char *autostart_commands[] = {};
+//static const char *autostart_commands[] = {
+  //"feh --bg-fill /home/xilef/Images/0000_Wallpaper/wallpaper1.jpg",
+  //"lemonpiper &"
+//};
 
 // INSERT FUNCTIONS
 static const void (*wm_on_init[])() = {
   basic_event_handling_init,
   basic_key_handling_init,
-//  kdwmc_server_start,
-//  autostart
+  multimon_init
+  //kdwmc_server_start,
+  //autostart
 };
 static const void (*wm_on_tini[])() = {
-//  kdwmc_server_stop
+  //kdwmc_server_stop
 };
 static const void (*wm_on_retag[])(int tag_mask) = {
-  multimon_on_retag,
-  pertag_configure
+  pertag_configure,
+  multimon_on_retag
 };
 static const void (*wm_on_add_tag_to_tag_mask[])(int tag) = {
   pertag_configure
 };
 static const void (*wm_on_arrange[])() = {
-//  kdwmc_server_subscribe
+  //kdwmc_server_subscribe
 };
 
 // KEYBINDINGS
 // #define MODKEY Mod1Mask // ALT
 #define MODKEY Mod4Mask // Super
 static const basic_key_handling_keybinding_t basic_key_handling_keybindings[] = {
+  {MODKEY|ShiftMask, XK_l, log_state, NONE, NULL},
   // stop
   {MODKEY|ShiftMask, XK_q, wm_stop, NONE, NULL},
   // audio
@@ -69,12 +78,15 @@ static const basic_key_handling_keybinding_t basic_key_handling_keybindings[] = 
   // brightness
   {0, XF86XK_MonBrightnessUp, wm_spawn, STRING, "xib +5"},
   {0, XF86XK_MonBrightnessDown, wm_spawn, STRING, "xib -5"},
+  // dmenu scripts
+  {MODKEY|ControlMask, XK_d, wm_spawn, STRING, "dmenu_monitor"},
+  {MODKEY|ControlMask, XK_a, wm_spawn, STRING, "dmenu_pulse_sink"},
+  {MODKEY|ControlMask, XK_i, wm_spawn, STRING, "dmenu_pulse_source"},
   // spawn
   {MODKEY, XK_b, wm_spawn, STRING, "qutebrowser"},
   {MODKEY|ShiftMask, XK_b, wm_spawn, STRING, "chromium"},
   {MODKEY|ShiftMask, XK_t, wm_spawn, STRING, "telegram-desktop"},
   {MODKEY, XK_r, wm_spawn, STRING, "dmenu_run"},
-  {MODKEY|ControlMask, XK_d, wm_spawn, STRING, "dmenu_monitor"},
   {MODKEY, XK_Return, wm_spawn, STRING, "st"},
   {MODKEY, XK_e, wm_spawn, STRING, "st -e lf"},
   {MODKEY|ShiftMask, XK_m, wm_spawn, STRING, "st -e cmus"},
@@ -156,5 +168,6 @@ static const basic_key_handling_keybinding_t basic_key_handling_keybindings[] = 
 #include "modules/pertag/pertag.c"
 #include "modules/multimon/multimon.c"
 #include "modules/cancer/cancer.c"
-// #include "modules/kdwmc_server/kdwmc_server.c"
-// #include "modules/autostart/autostart.c"
+#include "modules/logger/logger.c"
+//#include "modules/kdwmc_server/kdwmc_server.c"
+//#include "modules/autostart/autostart.c"
